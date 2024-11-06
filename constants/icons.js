@@ -13,6 +13,10 @@ import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
 import star from "../assets/icons/star.png";
 import criterias from "../assets/icons/criterias.png";
+import update from "../assets/icons/update.png";
+import erase from "../assets/icons/erase.png";
+import deleteIcon from "../assets/icons/delete.png";
+import halfStar from "../assets/icons/halfStar.png";
 
 export default {
   play,
@@ -30,4 +34,8 @@ export default {
   eye,
   star,
   criterias,
+  deleteIcon,
+  erase,
+  update,
+  halfStar,
 };
