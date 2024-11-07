@@ -7,16 +7,15 @@ import {
   Modal,
   TextInput,
   Alert,
-  Image,
   FlatList,
+  Image,
 } from "react-native";
 import React, { useState, useEffect, useMemo } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { initializeDatabase, addItem, getItems } from "../../utils/database";
 import ItemInfoCard from '../../components/ItemInfoCard';
 import { Link } from "expo-router";
 
-import { icons } from "../../constants"
-import { TouchableHighlight } from "react-native";
+import { icons } from '../../constants';
 
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -26,17 +25,12 @@ export default function App() {
   const [ratings, setRatings] = useState(["", "", ""]);
   const [items, setItems] = useState([]);
 
-  const randomItems = useMemo(() => {
-    if (items.length <= 2) return items;
-    const shuffledItems = [...items].sort(() => Math.random() - 0.5);
-    return shuffledItems.slice(0, 2);
-  }, [items]);
-
   useEffect(() => {
+    // Initialize database and fetch items on load
     const loadItems = async () => {
-      const jsonValue = await AsyncStorage.getItem("@items");
-      const storedItems = jsonValue != null ? JSON.parse(jsonValue) : [];
-      setItems(storedItems);
+      await initializeDatabase();
+      const fetchedItems = await getItems(0); // Fetch all items
+      setItems(fetchedItems);
     };
 
     loadItems();
@@ -60,7 +54,9 @@ export default function App() {
   };
 
   const handleSave = async () => {
-    const adjustedRatings = ratings.map(rating => rating.trim() === '' ? '0' : rating);
+    const adjustedRatings = ratings.map((rating) =>
+      rating.trim() === "" ? "0" : rating
+    );
 
     if (!title || !tags.some((tag) => tag)) {
       Alert.alert("Error", "Please provide a title and at least one tag.");
@@ -68,34 +64,32 @@ export default function App() {
     }
 
     if (!validateRatings()) {
-      Alert.alert("Error", "Please enter valid ratings between 0 and 5 in increments of 0.5 for filled criteria.");
+      Alert.alert(
+        "Error",
+        "Please enter valid ratings between 0 and 5 in increments of 0.5 for filled criteria."
+      );
       return;
     }
 
     const newItem = {
-      id: Date.now().toString(),
       title,
       tags: tags.filter((tag) => tag),
-      criteria: criteria.map((crit, index) => ({
+      criteriaRatings: criteria.map((crit, index) => ({
         name: crit,
-        rating: parseFloat(adjustedRatings[index].replace(',', '.')) || 0,
+        rating: parseFloat(adjustedRatings[index].replace(",", ".")) || 0,
       })),
     };
 
     try {
-      const updatedItems = [...items, newItem];
-      await saveItems(updatedItems);
+      // Add new item to database
+      await addItem(newItem.title, newItem.tags, newItem.criteriaRatings);
+      const updatedItems = await getItems(0); // Fetch all items after adding
       setItems(updatedItems);
       resetForm();
       setModalVisible(false);
     } catch (error) {
       console.error("Error saving item:", error);
     }
-  };
-
-  const saveItems = async (items) => {
-    const jsonValue = JSON.stringify(items);
-    await AsyncStorage.setItem("@items", jsonValue);
   };
 
   const resetForm = () => {
@@ -111,12 +105,28 @@ export default function App() {
         id={item.id}
         title={item.title}
         tags={item.tags}
-        criteriaRatings={item.criteria}
+        criteriaRatings={item.criteriaRatings}
         showButtons={false}
         onDelete={() => handleDeleteItem(item.id)}
       />
     </View>
   );
+
+  const randomItems = useMemo(() => {
+    if (items.length <= 2) return items;
+    const shuffledItems = [...items].sort(() => Math.random() - 0.5);
+    return shuffledItems.slice(0, 2);
+  }, [items]);
+
+  const handleDeleteItem = async (id) => {
+    try {
+      await deleteItem(id); // Delete item from database
+      const updatedItems = await getItems(0); // Fetch updated list
+      setItems(updatedItems);
+    } catch (error) {
+      console.error("Error deleting item:", error);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-28">
@@ -125,7 +135,7 @@ export default function App() {
       <Text className="text-8xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
       <View className="items-end">
         <Text className="text-2xl  text-secondaryLight font-psemibold mr-6">SAVOR EVERY MOMENT,</Text>
-        <Text className="text-3xl text-secondary mb-10 font-psemibold mr-4">RATE EVERY TASTE!</Text>
+        <Text className="text-3xl text-secondary mb-6 font-psemibold mr-4">RATE EVERY TASTE!</Text>
       </View>
 
       <TouchableOpacity
@@ -136,15 +146,16 @@ export default function App() {
           GRADE SOMETHING NEW
         </Text>
       </TouchableOpacity>
-      <View className="bg-backgroundAnti border border-neutral pt-4 pb-2 rounded ">
+
+      <View className="bg-secondaryLight border-y border-neutral py-3 my-3">
         <View className="flex-row justify-between items-center">
-          <Text className="text-neutral text-lg font-pmedium ml-3">Random Graded Items</Text>
-          <Link href="/grades" className="flex-row items-center p-3">
-            <Text className="text-neutral text-base font-pmedium mr-3">See more</Text>
+          <Text className="text-neutral text-lg font-pmedium ml-3 pt-3 px-3 pb-2 border mr-1 rounded border-neutral">Random Graded Items</Text>
+          <Link href="/grades" className="flex-row items-center p-3 mr-1 ">
+            <Text className="text-neutral text-base font-pmedium m-3">See more</Text>
             <Image
               source={icons.rightArrow}
               resizeMode="contain"
-              style={{ tintColor: '#424242' }}
+              style={{ tintColor: '#424242', marginLeft:35 }}
               className="mr-3"
             />
           </Link>
@@ -158,6 +169,27 @@ export default function App() {
         />
       </View>
 
+      <View className="bg-secondaryLight border-y border-neutral py-3 my-3">
+        <View className="flex-row justify-between items-center">
+          <Text className="text-neutral text-lg font-pmedium ml-3 pt-3 px-3 pb-2 border mr-1 rounded border-neutral">Stats</Text>
+          <Link href="/filters" className="flex-row items-center p-3 mr-1 ">
+            <Text className="text-neutral text-base font-pmedium m-3">See more</Text>
+            <Image
+              source={icons.rightArrow}
+              resizeMode="contain"
+              style={{ tintColor: '#424242', marginLeft:35 }}
+              className="mr-3"
+            />
+          </Link>
+        </View>
+        <FlatList
+          data={randomItems}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          numColumns={2}
+        />
+      </View>
 
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
         <View className="flex-1 justify-center p-6 bg-backgroundAnti">
@@ -214,7 +246,7 @@ export default function App() {
             />
           ) : null}
 
-          <View className="flex-row justify-between">
+<View className="flex-row justify-between">
             <Text className="font-pbold mb-2 mx-5 text-primary">Criterias</Text>
             <Text className="font-pbold mb-2 mx-7 text-primary">Rating</Text>
           </View>
@@ -302,7 +334,10 @@ export default function App() {
 
           <View className="flex-row justify-end mb-4">
             <TouchableOpacity
-              onPress={() => setModalVisible(false)}
+              onPress={() => {
+                setModalVisible(false);
+                resetForm();
+              }}
               className="bg-secondaryLight rounded-full px-6 py-4 mx-3"
             >
               <Text className="text-xl font-pbold text-primary">Cancel</Text>

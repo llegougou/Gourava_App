@@ -1,17 +1,20 @@
-import { 
-  SafeAreaView, 
-  View, 
-  Text, 
-  TextInput, 
-  FlatList, 
-  TouchableOpacity, 
+import {
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
   Image,
-  Modal } from 'react-native';
+  Modal
+} from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import ItemInfoCard from '../../components/ItemInfoCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { icons } from '../../constants';
 import { useFocusEffect } from '@react-navigation/native';
+
+import { initializeDatabase, getItems, deleteItem, updateItem } from "../../utils/database";
 
 const Grades = () => {
   const [isTagsVisible, setTagsVisible] = useState(false);
@@ -24,22 +27,24 @@ const Grades = () => {
   const [items, setItems] = useState([]);
 
   const [editItemId, setEditItemId] = useState(null);
-  const [title, setTitle] = useState(''); 
-  const [tags, setTags] = useState(['']); 
+  const [title, setTitle] = useState('');
+  const [tags, setTags] = useState(['']);
   const [criteria, setCriteria] = useState(['']);
   const [ratings, setRatings] = useState(['']);
 
   const searchInputRef = useRef(null);
 
   const loadItems = async () => {
-    const jsonValue = await AsyncStorage.getItem('@items');
-    const storedItems = jsonValue != null ? JSON.parse(jsonValue) : [];
-    setItems(storedItems);
+    const itemsFromDb = await getItems(0);
+    setItems(itemsFromDb);
   };
 
   useFocusEffect(
     React.useCallback(() => {
-      loadItems(); 
+      const fetchItems = async () => {
+        await loadItems();
+      };
+      fetchItems();
     }, [])
   );
 
@@ -61,10 +66,12 @@ const Grades = () => {
     setOrderByVisible(!isOrderByVisible);
   };
 
-  const calculateAverageRating = (criteriaRatings) => {
-    const total = criteriaRatings.reduce((sum, { rating }) => sum + rating, 0);
+  const calculateAverageRating = (criteriaRatings = []) => {
+    if (!criteriaRatings || criteriaRatings.length === 0) return 0;
+    const total = criteriaRatings.reduce((sum, { rating }) => sum + (parseFloat(rating) || 0), 0);
     return total / criteriaRatings.length;
   };
+
 
   const filteredAndSortedItems = items
     .filter((item) => {
@@ -73,7 +80,7 @@ const Grades = () => {
         if (
           !item.title.toLowerCase().includes(query) &&
           !item.tags.some((tag) => tag.toLowerCase().includes(query)) &&
-          !item.criteria.some((criteria) =>
+          !item.criteriaRatings.some((criteria) =>
             criteria.name.toLowerCase().includes(query)
           )
         ) {
@@ -94,41 +101,40 @@ const Grades = () => {
         case 'random':
           return Math.random() - 0.5;
         case 'ratingAsc':
-          return calculateAverageRating(a.criteria) - calculateAverageRating(b.criteria);
+          return calculateAverageRating(a.criteriaRatings) - calculateAverageRating(b.criteriaRatings);
         case 'ratingDesc':
-          return calculateAverageRating(b.criteria) - calculateAverageRating(a.criteria);
+          return calculateAverageRating(b.criteriaRatings) - calculateAverageRating(a.criteriaRatings);
         default:
           return 0;
       }
     });
 
-    const renderItem = ({ item }) => (
-      <View style={{ flex: 1, margin: 10 }}>
-        <ItemInfoCard
-          id={item.id}
-          title={item.title}
-          tags={item.tags}
-          criteriaRatings={item.criteria}
-          showButtons={true}
-          onDelete={() => handleDeleteItem(item.id)} 
-          onUpdate={() => handleUpdateItem(item)} 
-        />
-      </View>
-    );    
+  const renderItem = ({ item }) => (
+    <View style={{ flex: 1, margin: 10 }}>
+      <ItemInfoCard
+        id={item.id}
+        title={item.title}
+        tags={item.tags}
+        criteriaRatings={item.criteriaRatings}
+        showButtons={true}
+        onDelete={() => handleDeleteItem(item.id)}
+        onUpdate={() => handleUpdateItem(item)}
+      />
+    </View>
+  );
 
   const handleDeleteItem = async (id) => {
+    await deleteItem(id);
     const updatedItems = items.filter((item) => item.id !== id);
     setItems(updatedItems);
-  
-    await AsyncStorage.setItem('@items', JSON.stringify(updatedItems));
   };
 
   const handleUpdateItem = (item) => {
     setEditItemId(item.id);
     setTitle(item.title);
     setTags([...item.tags]);
-    setCriteria(item.criteria.map(crit => crit.name));
-    setRatings(item.criteria.map(crit => String(crit.rating)));
+    setCriteria(item.criteriaRatings.map(crit => crit.name));
+    setRatings(item.criteriaRatings.map(crit => String(crit.rating)));
     setModalVisible(true);
   };
 
@@ -138,24 +144,32 @@ const Grades = () => {
         return {
           ...item,
           title,
-          tags: tags.filter(tag => tag),  
-          criteria: criteria.map((name, index) => ({
-            name,
-            rating: parseFloat(ratings[index]) || 0,  
-          })).filter(crit => crit.name), 
+          tags: tags.filter(tag => tag), // filters out any empty tags
+          criteriaRatings: criteria.map((crit, index) => ({
+            name: crit,
+            rating: parseFloat(ratings[index]) || 0, // ensures ratings are numbers
+          })).filter(crit => crit.name), // filters out any criteria without a name
         };
       }
       return item;
     });
-  
-    setItems(updatedItems);
-    await AsyncStorage.setItem('@items', JSON.stringify(updatedItems));
-    setModalVisible(false); 
+
+    // Retrieve the updated item to pass to the `updateItem` function
+    const item = updatedItems.find(item => item.id === editItemId);
+    if (item) {
+      try {
+        // Ensure criteriaRatings is passed correctly to the database utility
+        await updateItem(item.id, item.title, item.tags, item.criteriaRatings);
+        setItems(updatedItems);
+        setModalVisible(false);
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    }
   };
-  
 
   return (
-    <SafeAreaView style={{paddingBottom:'10%'}} className="flex-1 bg-background px-4 py-6 pt-14">
+    <SafeAreaView style={{ paddingBottom: '15%' }} className="flex-1 bg-background px-4 py-6 pt-14">
       <View>
         <View className="my-6" style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TextInput
@@ -169,7 +183,7 @@ const Grades = () => {
             if (searchQuery) {
               setSearchQuery('');
             } else {
-              searchInputRef.current.focus(); 
+              searchInputRef.current.focus();
             }
           }}
           >
@@ -257,6 +271,7 @@ const Grades = () => {
         showsVerticalScrollIndicator={false}
         numColumns={2}
       />
+
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
         <View className="flex-1 justify-center p-6 bg-backgroundAnti">
           <Text className="text-2xl font-pextrabold mb-4 self-center">

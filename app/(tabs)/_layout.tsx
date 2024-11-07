@@ -56,7 +56,7 @@ const TabsLayout = () => {
           tabBarActiveBackgroundColor: '#00796B',
           tabBarInactiveBackgroundColor: '#089889',
           tabBarStyle: {
-            height: isKeyboardVisible ? 0 : '7%', 
+            height:'7%', 
             display: isKeyboardVisible ? 'none' : 'flex', 
             position: 'absolute', 
             bottom: 0,
@@ -103,21 +103,6 @@ const TabsLayout = () => {
                 icon={icons.criterias}
                 color={color}
                 name="Filters"
-                focused={focused}
-              />
-            )
-          }}
-        />
-        <Tabs.Screen
-          name='profile'
-          options={{
-            title: 'Profile',
-            headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.profile}
-                color={color}
-                name="Profile"
                 focused={focused}
               />
             )
