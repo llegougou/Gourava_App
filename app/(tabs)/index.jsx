@@ -24,17 +24,20 @@ export default function App() {
   const [criteria, setCriteria] = useState(["", "", ""]);
   const [ratings, setRatings] = useState(["", "", ""]);
   const [items, setItems] = useState([]);
+  const [randomItems, setRandomItems] = useState([]);
 
   useEffect(() => {
-    // Initialize database and fetch items on load
     const loadItems = async () => {
       await initializeDatabase();
-      const fetchedItems = await getItems(0); // Fetch all items
+      const fetchedItems = await getItems(0);
       setItems(fetchedItems);
+
+      const fetchedRandomItems = await getItems(2);
+      setRandomItems(fetchedRandomItems);
     };
 
     loadItems();
-    randomItems;
+
   }, []);
 
   const validateRatings = () => {
@@ -81,9 +84,8 @@ export default function App() {
     };
 
     try {
-      // Add new item to database
       await addItem(newItem.title, newItem.tags, newItem.criteriaRatings);
-      const updatedItems = await getItems(0); // Fetch all items after adding
+      const updatedItems = await getItems(0);
       setItems(updatedItems);
       resetForm();
       setModalVisible(false);
@@ -112,16 +114,10 @@ export default function App() {
     </View>
   );
 
-  const randomItems = useMemo(() => {
-    if (items.length <= 2) return items;
-    const shuffledItems = [...items].sort(() => Math.random() - 0.5);
-    return shuffledItems.slice(0, 2);
-  }, [items]);
-
   const handleDeleteItem = async (id) => {
     try {
-      await deleteItem(id); // Delete item from database
-      const updatedItems = await getItems(0); // Fetch updated list
+      await deleteItem(id);
+      const updatedItems = await getItems(0);
       setItems(updatedItems);
     } catch (error) {
       console.error("Error deleting item:", error);
@@ -155,7 +151,7 @@ export default function App() {
             <Image
               source={icons.rightArrow}
               resizeMode="contain"
-              style={{ tintColor: '#424242', marginLeft:35 }}
+              style={{ tintColor: '#424242', marginLeft: 35 }}
               className="mr-3"
             />
           </Link>
@@ -177,18 +173,12 @@ export default function App() {
             <Image
               source={icons.rightArrow}
               resizeMode="contain"
-              style={{ tintColor: '#424242', marginLeft:35 }}
+              style={{ tintColor: '#424242', marginLeft: 35 }}
               className="mr-3"
             />
           </Link>
         </View>
-        <FlatList
-          data={randomItems}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          numColumns={2}
-        />
+        <FlatList />
       </View>
 
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
@@ -246,7 +236,7 @@ export default function App() {
             />
           ) : null}
 
-<View className="flex-row justify-between">
+          <View className="flex-row justify-between">
             <Text className="font-pbold mb-2 mx-5 text-primary">Criterias</Text>
             <Text className="font-pbold mb-2 mx-7 text-primary">Rating</Text>
           </View>

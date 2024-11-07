@@ -1,6 +1,5 @@
 import * as SQLite from 'expo-sqlite';
 
-// Declare the db globally
 let db;
 
 export const initializeDatabase = async () => {
@@ -36,7 +35,6 @@ export const initializeDatabase = async () => {
 
 export const addItem = async (title, tags, criteriaRatings) => {
   try {
-    // Ensure db is initialized
     if (!db) {
       await initializeDatabase();
     }
@@ -68,7 +66,6 @@ export const addItem = async (title, tags, criteriaRatings) => {
 
 export const getItems = async (limit) => {
     try {
-      // Ensure db is initialized
       if (!db) {
         await initializeDatabase();
       }

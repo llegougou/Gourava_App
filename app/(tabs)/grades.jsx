@@ -10,11 +10,10 @@ import {
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import ItemInfoCard from '../../components/ItemInfoCard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { icons } from '../../constants';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { initializeDatabase, getItems, deleteItem, updateItem } from "../../utils/database";
+import { getItems, deleteItem, updateItem } from "../../utils/database";
 
 const Grades = () => {
   const [isTagsVisible, setTagsVisible] = useState(false);
@@ -144,21 +143,19 @@ const Grades = () => {
         return {
           ...item,
           title,
-          tags: tags.filter(tag => tag), // filters out any empty tags
+          tags: tags.filter(tag => tag),
           criteriaRatings: criteria.map((crit, index) => ({
             name: crit,
-            rating: parseFloat(ratings[index]) || 0, // ensures ratings are numbers
-          })).filter(crit => crit.name), // filters out any criteria without a name
+            rating: parseFloat(ratings[index]) || 0,
+          })).filter(crit => crit.name),
         };
       }
       return item;
     });
 
-    // Retrieve the updated item to pass to the `updateItem` function
     const item = updatedItems.find(item => item.id === editItemId);
     if (item) {
       try {
-        // Ensure criteriaRatings is passed correctly to the database utility
         await updateItem(item.id, item.title, item.tags, item.criteriaRatings);
         setItems(updatedItems);
         setModalVisible(false);
