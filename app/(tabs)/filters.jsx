@@ -9,31 +9,32 @@ const Filters = () => {
   const [criteriasCounts, setCriteriasCounts] = useState([]);
 
   const loadCounts = async () => {
-    const tags = await getTagsUsageCount;
+    const tags = await getTagsUsageCount(0);
     setTagCounts(tags);
-    const criterias = await getCriteriaUsageCount;
+    const criterias = await getCriteriaUsageCount(0);
     setCriteriasCounts(criterias);
   }
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchCounts = async () => {
-        await loadCounts();
-      }
-      fetchCounts();
+      loadCounts();
     }, [])
+       
   );
 
   const renderItem = ({ item }) => (
     <View className="flex-row justify-between px-4 py-2">
-      <Text className="text-neutral text-lg font-pbold">{item.tag}</Text>
-      <Text className="text-neutral text-lg">{item.count}</Text>
+      <Text className="text-neutral text-lg font-pbold">
+        {item.tag || item.name}
+      </Text>
+      <Text className="text-neutral text-lg">{item.usage_count}</Text>
     </View>
   );
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-20">
-      <View style={{maxHeight:'20%', marginVertical:'2%'}}>
+
+      <View style={{ marginVertical: '2%' }}>
         <View className="bg-backgroundAnti border-t border-neutral py-4">
           <Text className="text-neutral ml-16 text-xl font-pextrabold">TAGS</Text>
         </View>
@@ -42,31 +43,29 @@ const Filters = () => {
             data={tagCounts}
             renderItem={renderItem}
             keyExtractor={(item) => item.tag}
-          /> 
+          />
         </View>
       </View>
-      <View style={{maxHeight:'20%', marginVertical:'2%'}}>
+
+      <View style={{ marginVertical: '2%' }}>
         <View className="bg-backgroundAnti border-t border-neutral py-4">
           <Text className="text-neutral ml-16 text-xl font-pextrabold">CRITERIAS</Text>
         </View>
         <View className="bg-secondaryLight border-y border-neutral py-4">
           <FlatList
-            data={tagCounts}
+            data={criteriasCounts}
             renderItem={renderItem}
-            keyExtractor={(item) => item.tag}
-          /> 
+            keyExtractor={(item) => item.name}
+          />
         </View>
       </View>
-      <View style={{maxHeight:'20%', marginVertical:'2%'}}>
+      
+      <View style={{ maxHeight: '20%', marginVertical: '2%' }}>
         <View className="bg-backgroundAnti border-t border-neutral py-4">
-          <Text className="text-neutral ml-16 text-xl font-pextrabold">CRITERIAS</Text>
+          <Text className="text-neutral ml-16 text-xl font-pextrabold">TEMPLATES</Text>
         </View>
         <View className="bg-secondaryLight border-y border-neutral py-4">
-          <FlatList
-            data={tagCounts}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.tag}
-          /> 
+          <Text className="ml-10">SOON TO COME</Text>
         </View>
       </View>
     </SafeAreaView>

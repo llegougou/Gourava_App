@@ -105,30 +105,46 @@ export const getItems = async (limit) => {
   };
   
 
-export const getTagsUsageCount = async () => {
+export const getTagsUsageCount = async (limit) => {
   try {
     if (!db) {
       await initializeDatabase();
     }
 
-    const tagsUsageCount = await db.getAllAsync(
-      `SELECT tag, COUNT(*) as usage_count FROM tags GROUP BY tag ORDER BY usage_count DESC`
-    );
+    let tagsUsageCount
+
+    if (limit > 0) {
+      tagsUsageCount = await db.getAllAsync(
+        `SELECT tag, COUNT(*) as usage_count FROM tags GROUP BY tag ORDER BY RANDOM() LIMIT ?`, [limit]
+      );
+    } else {
+      tagsUsageCount = await db.getAllAsync(
+        `SELECT tag, COUNT(*) as usage_count FROM tags GROUP BY tag ORDER BY usage_count DESC`
+      );
+    }
     return tagsUsageCount;
   } catch (error) {
     console.error("Error getting tags usage count:", error);
   }
 };
 
-export const getCriteriaUsageCount = async () => {
+export const getCriteriaUsageCount = async (limit) => {
   try {
     if (!db) {
       await initializeDatabase();
     }
 
-    const criteriaUsageCount = await db.getAllAsync(
-      `SELECT name, COUNT(*) as usage_count FROM criteria GROUP BY name ORDER BY usage_count DESC`
-    );
+    let criteriaUsageCount
+
+    if (limit > 0) {
+      criteriaUsageCount = await db.getAllAsync(
+        `SELECT name, COUNT(*) as usage_count FROM criteria GROUP BY name ORDER BY RANDOM() LIMIT ?`, [limit]
+      );
+    } else {
+      criteriaUsageCount = await db.getAllAsync(
+        `SELECT name, COUNT(*) as usage_count FROM criteria GROUP BY name ORDER BY usage_count DESC`
+      );
+    }
     return criteriaUsageCount;
   } catch (error) {
     console.error("Error getting criteria usage count:", error);

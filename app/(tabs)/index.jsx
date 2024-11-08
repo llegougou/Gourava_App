@@ -10,10 +10,11 @@ import {
   FlatList,
   Image,
 } from "react-native";
-import React, { useState, useEffect, useMemo } from "react";
-import { initializeDatabase, addItem, getItems } from "../../utils/database";
+import React, { useState, useMemo } from "react";
+import { useFocusEffect } from '@react-navigation/native';
+import { initializeDatabase, addItem, getItems, getTagsUsageCount, getCriteriaUsageCount } from "../../utils/database";
 import ItemInfoCard from '../../components/ItemInfoCard';
-import { Link } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
 import { icons } from '../../constants';
 
@@ -25,20 +26,33 @@ export default function App() {
   const [ratings, setRatings] = useState(["", "", ""]);
   const [items, setItems] = useState([]);
   const [randomItems, setRandomItems] = useState([]);
+  const [tagsCounts, setTagsCounts] = useState([]);
+  const [criteriasCounts, setCriteriasCounts] = useState([]);
 
-  useEffect(() => {
-    const loadItems = async () => {
-      await initializeDatabase();
-      const fetchedItems = await getItems(0);
-      setItems(fetchedItems);
+  const navigation = useNavigation();
 
-      const fetchedRandomItems = await getItems(2);
-      setRandomItems(fetchedRandomItems);
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      loadItems();
+      loadCounts();
+    }, [])
+  );
 
-    loadItems();
+  const loadItems = async () => {
+    await initializeDatabase();
+    const fetchedItems = await getItems(0);
+    setItems(fetchedItems);
 
-  }, []);
+    const fetchedRandomItems = await getItems(2);
+    setRandomItems(fetchedRandomItems);
+  };
+
+  const loadCounts = async () => {
+    const tags = await getTagsUsageCount(4);
+    setTagsCounts(tags);
+    const criterias = await getCriteriaUsageCount(4);
+    setCriteriasCounts(criterias);
+  }
 
   const validateRatings = () => {
     return criteria.map((crit, index) => {
@@ -57,15 +71,16 @@ export default function App() {
   };
 
   const handleSave = async () => {
-    const adjustedRatings = ratings.map((rating) =>
-      rating.trim() === "" ? "0" : rating
-    );
+    const isTitleValid = title.trim() !== "";
+    const hasAtLeastOneTag = tags.some((tag) => tag.trim() !== "");
 
-    if (!title || !tags.some((tag) => tag)) {
+    // Check for valid title and at least one tag
+    if (!isTitleValid || !hasAtLeastOneTag) {
       Alert.alert("Error", "Please provide a title and at least one tag.");
       return;
     }
 
+    // Validate ratings if they are filled, else leave them empty
     if (!validateRatings()) {
       Alert.alert(
         "Error",
@@ -74,21 +89,26 @@ export default function App() {
       return;
     }
 
-    const newItem = {
-      title,
-      tags: tags.filter((tag) => tag),
-      criteriaRatings: criteria.map((crit, index) => ({
-        name: crit,
-        rating: parseFloat(adjustedRatings[index].replace(",", ".")) || 0,
-      })),
-    };
-
     try {
-      await addItem(newItem.title, newItem.tags, newItem.criteriaRatings);
-      const updatedItems = await getItems(0);
-      setItems(updatedItems);
-      resetForm();
+      // Map the criteria and only include those with non-empty ratings
+      const filteredCriteria = criteria.map((name, index) => ({
+        name,
+        rating: ratings[index].trim() === "" ? undefined : ratings[index] // Skip empty ratings by setting them as `undefined`
+      })).filter(criteria => criteria.rating !== undefined); // Remove criteria with undefined ratings
+
+      // Filter out empty tags before passing to addItem
+      const filteredTags = tags.filter(tag => tag.trim() !== "");
+
+      // Save the item with the provided data
+      await addItem(title, filteredTags, filteredCriteria);
+
+      setTitle("");
+      setTags(["", "", ""]);
+      setCriteria(["", "", ""]);
+      setRatings(["", "", ""]);
+
       setModalVisible(false);
+      loadItems();
     } catch (error) {
       console.error("Error saving item:", error);
     }
@@ -109,20 +129,25 @@ export default function App() {
         tags={item.tags}
         criteriaRatings={item.criteriaRatings}
         showButtons={false}
-        onDelete={() => handleDeleteItem(item.id)}
       />
     </View>
   );
 
-  const handleDeleteItem = async (id) => {
-    try {
-      await deleteItem(id);
-      const updatedItems = await getItems(0);
-      setItems(updatedItems);
-    } catch (error) {
-      console.error("Error deleting item:", error);
-    }
-  };
+  const renderStats = ({item}) => (
+    <View className="flex-row justify-between px-4 py-2">
+      <Text className="text-neutral text-lg font-pmedium">
+        {item.tag || item.name}
+      </Text>
+    </View>
+  )
+
+  const handleGradesPress = () => {
+    navigation.navigate('grades');
+  }
+
+  const handleFiltersPress = () => {
+    navigation.navigate('filters');
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-28">
@@ -144,18 +169,22 @@ export default function App() {
       </TouchableOpacity>
 
       <View className="bg-secondaryLight border-y border-neutral py-3 my-3">
-        <View className="flex-row justify-between items-center">
-          <Text className="text-neutral text-lg font-pmedium ml-3 pt-3 px-3 pb-2 border mr-1 rounded border-neutral">Random Graded Items</Text>
-          <Link href="/grades" className="flex-row items-center p-3 mr-1 ">
-            <Text className="text-neutral text-base font-pmedium m-3">See more</Text>
+        <TouchableOpacity onPress={handleGradesPress} className="flex-row justify-between border bg-neutral items-center rounded mx-3">
+          <Text className="text-accent text-lg font-pmedium ml-3 pt-3 px-3 pb-2 mr-1">Random Graded Items</Text>
+          <View className="flex-row items-center p-3 mr-1 ">
+            <Text className="text-accent text-base font-pmedium my-1">See more</Text>
             <Image
               source={icons.rightArrow}
               resizeMode="contain"
-              style={{ tintColor: '#424242', marginLeft: 35 }}
-              className="mr-3"
+              style={{
+                tintColor: '#FFD700',
+                marginLeft: 4,
+                width: 18,
+                height: 18,
+              }}
             />
-          </Link>
-        </View>
+          </View>
+        </TouchableOpacity>
         <FlatList
           data={randomItems}
           renderItem={renderItem}
@@ -166,19 +195,46 @@ export default function App() {
       </View>
 
       <View className="bg-secondaryLight border-y border-neutral py-3 my-3">
-        <View className="flex-row justify-between items-center">
-          <Text className="text-neutral text-lg font-pmedium ml-3 pt-3 px-3 pb-2 border mr-1 rounded border-neutral">Stats</Text>
-          <Link href="/filters" className="flex-row items-center p-3 mr-1 ">
-            <Text className="text-neutral text-base font-pmedium m-3">See more</Text>
+        <TouchableOpacity onPress={handleFiltersPress} className="flex-row justify-between border bg-neutral items-center rounded mx-3">
+          <Text className="text-accent text-lg font-pmedium ml-3 pt-3 px-3 pb-2 mr-1">Random Stats</Text>
+          <View className="flex-row items-center p-3 mr-1 ">
+            <Text className="text-accent text-base font-pmedium my-1">See more</Text>
             <Image
               source={icons.rightArrow}
               resizeMode="contain"
-              style={{ tintColor: '#424242', marginLeft: 35 }}
-              className="mr-3"
+              style={{
+                tintColor: '#FFD700',
+                marginLeft: 4,
+                width: 18,
+                height: 18,
+              }}
             />
-          </Link>
+          </View>
+        </TouchableOpacity>
+        <View className="max-h-52 flex-row mt-2 border-b border-neutral mx-1">
+          <View className="flex-1 border-x border-neutral">
+            <Text className="bg-secondary border-y border-neutral text-center font-pbold p-1 pt-2">
+              Tags
+            </Text>
+            <FlatList
+              data={tagsCounts}
+              renderItem={renderStats}
+              keyExtractor={(item) => item.tag}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+          <View className="flex-1 border-r border-neutral">
+            <Text className="bg-secondary border-y border-neutral text-center font-pbold p-1 pt-2">
+              Criterias
+            </Text>
+            <FlatList
+              data={criteriasCounts}
+              renderItem={renderStats}
+              keyExtractor={(item) => item.name}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
         </View>
-        <FlatList />
       </View>
 
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
