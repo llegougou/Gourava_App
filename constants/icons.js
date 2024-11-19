@@ -17,6 +17,7 @@ import update from "../assets/icons/update.png";
 import erase from "../assets/icons/erase.png";
 import deleteIcon from "../assets/icons/delete.png";
 import halfStar from "../assets/icons/halfStar.png";
+import navArrow from "../assets/icons/downNavArrow.png";
 
 export default {
   play,
@@ -38,4 +39,5 @@ export default {
   erase,
   update,
   halfStar,
+  navArrow,
 };

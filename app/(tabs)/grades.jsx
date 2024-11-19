@@ -6,7 +6,8 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  Modal
+  Modal,
+  ScrollView
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import ItemInfoCard from '../../components/ItemInfoCard';
@@ -86,11 +87,9 @@ const Grades = () => {
           return false;
         }
       }
-
       if (selectedTags.length > 0 && !selectedTags.every(tag => item.tags.includes(tag))) {
         return false;
       }
-
       return true;
     })
     .sort((a, b) => {
@@ -107,6 +106,13 @@ const Grades = () => {
           return 0;
       }
     });
+
+  const splitData = (data) => {
+    const midIndex = Math.ceil(data.length / 2);
+    return [data.slice(0, midIndex), data.slice(midIndex)];
+  };
+
+  const [leftColumnItems, rightColumnItems] = splitData(filteredAndSortedItems);
 
   const renderItem = ({ item }) => (
     <View style={{ flex: 1, margin: 10 }}>
@@ -167,6 +173,8 @@ const Grades = () => {
 
   return (
     <SafeAreaView style={{ paddingBottom: '15%' }} className="flex-1 bg-background px-4 py-6 pt-14">
+
+      {/* SearchBar */}
       <View>
         <View className="my-6" style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TextInput
@@ -199,6 +207,7 @@ const Grades = () => {
         </View>
       </View>
 
+      {/* Order and Filter Buttons */}
       <View className="flex-row justify-between mb-4">
         <TouchableOpacity
           onPress={() => displayTags()}
@@ -214,6 +223,7 @@ const Grades = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Filter By */}
       {isTagsVisible && (
         <View className="flex-wrap flex-row bg-primaryLight rounded-lg p-4 mb-4">
           <View className="flex-row flex-wrap justify-center items-center">
@@ -221,15 +231,22 @@ const Grades = () => {
               <TouchableOpacity
                 key={tag}
                 onPress={() => toggleTagSelection(tag)}
-                className={`border p-3 rounded-lg mb-2 mr-2 ${selectedTags.includes(tag) ? 'bg-secondary' : 'bg-white'}`}
+                className={`border border-neutral p-3 rounded-lg mb-2 mr-2 ${selectedTags.includes(tag) ? 'bg-secondary' : 'bg-background'}`}
               >
-                <Text className={`${selectedTags.includes(tag) ? 'text-white' : 'text-black'}`}>{tag}</Text>
+                <Text className={`${selectedTags.includes(tag) ? 'text-background' : 'text-neutral'}`}>{tag}</Text>
               </TouchableOpacity>
             ))}
+            <TouchableOpacity
+              onPress={() => setSelectedTags([])}
+              className="border border-neutral p-3 rounded-lg mb-2 mr-2 bg-accent"
+            >
+              <Text className="text-neutral">Reset All Tags</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
 
+      {/* Order By */}
       {isOrderByVisible && (
         <View className="bg-primaryLight rounded-lg p-4 mb-4">
           <View className="flex-row flex-wrap justify-center items-center">
@@ -261,14 +278,27 @@ const Grades = () => {
         </View>
       )}
 
-      <FlatList
-        data={filteredAndSortedItems}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        showsVerticalScrollIndicator={false}
-        numColumns={2}
-      />
+      {/* List of Items */}
+      <ScrollView>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <FlatList
+          data={leftColumnItems}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => 'left-' + index.toString()}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={false}
+        />
+        <FlatList
+          data={rightColumnItems}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => 'right-' + index.toString()}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={false}
+        />
+      </View>
+      </ScrollView>
 
+      {/* Modal */}
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
         <View className="flex-1 justify-center p-6 bg-backgroundAnti">
           <Text className="text-2xl font-pextrabold mb-4 self-center">

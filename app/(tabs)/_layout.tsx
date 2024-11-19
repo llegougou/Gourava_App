@@ -56,10 +56,12 @@ const TabsLayout = () => {
           tabBarActiveBackgroundColor: '#00796B',
           tabBarInactiveBackgroundColor: '#089889',
           tabBarStyle: {
-            height:'7%', 
+            height: 70, 
             display: isKeyboardVisible ? 'none' : 'flex', 
             position: 'absolute', 
             bottom: 0,
+            borderWidth:1,
+            borderColor:'#424242'
           }
         }}
       >

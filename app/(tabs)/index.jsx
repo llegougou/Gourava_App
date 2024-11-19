@@ -74,13 +74,11 @@ export default function App() {
     const isTitleValid = title.trim() !== "";
     const hasAtLeastOneTag = tags.some((tag) => tag.trim() !== "");
 
-    // Check for valid title and at least one tag
     if (!isTitleValid || !hasAtLeastOneTag) {
       Alert.alert("Error", "Please provide a title and at least one tag.");
       return;
     }
 
-    // Validate ratings if they are filled, else leave them empty
     if (!validateRatings()) {
       Alert.alert(
         "Error",
@@ -90,16 +88,13 @@ export default function App() {
     }
 
     try {
-      // Map the criteria and only include those with non-empty ratings
       const filteredCriteria = criteria.map((name, index) => ({
         name,
-        rating: ratings[index].trim() === "" ? undefined : ratings[index] // Skip empty ratings by setting them as `undefined`
-      })).filter(criteria => criteria.rating !== undefined); // Remove criteria with undefined ratings
+        rating: ratings[index].trim() === "" ? undefined : ratings[index]
+      })).filter(criteria => criteria.rating !== undefined);
 
-      // Filter out empty tags before passing to addItem
       const filteredTags = tags.filter(tag => tag.trim() !== "");
 
-      // Save the item with the provided data
       await addItem(title, filteredTags, filteredCriteria);
 
       setTitle("");
@@ -150,41 +145,45 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background pt-28">
+    <SafeAreaView className="flex-1 bg-background pt-24">
       <StatusBar style="dark" />
       <Text className="text-4xl text-primaryLight font-pextrabold ml-4">WELCOME TO</Text>
-      <Text className="text-8xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
+      <Text className="text-7xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
       <View className="items-end">
         <Text className="text-2xl  text-secondaryLight font-psemibold mr-6">SAVOR EVERY MOMENT,</Text>
-        <Text className="text-3xl text-secondary mb-6 font-psemibold mr-4">RATE EVERY TASTE!</Text>
+        <Text className="text-3xl text-secondary mb-4 font-psemibold mr-4">RATE EVERY TASTE!</Text>
       </View>
 
+      {/* Add Button */}
       <TouchableOpacity
-        className="bg-primary rounded-xl px-6 py-4 mx-4 mb-4 border border-neutral"
+        className="bg-primary rounded-xl px-6 py-4 mx-4 mb-2 border border-neutral"
         onPress={() => setModalVisible(true)}
       >
-        <Text className="text-xl font-bold text-secondaryLight text-center">
+        <Text className="text-xl font-bold text-background text-center">
           GRADE SOMETHING NEW
         </Text>
       </TouchableOpacity>
 
-      <View className="bg-secondaryLight border-y border-neutral py-3 my-3">
-        <TouchableOpacity onPress={handleGradesPress} className="flex-row justify-between border bg-neutral items-center rounded mx-3">
-          <Text className="text-accent text-lg font-pmedium ml-3 pt-3 px-3 pb-2 mr-1">Random Graded Items</Text>
-          <View className="flex-row items-center p-3 mr-1 ">
-            <Text className="text-accent text-base font-pmedium my-1">See more</Text>
-            <Image
-              source={icons.rightArrow}
-              resizeMode="contain"
-              style={{
-                tintColor: '#FFD700',
-                marginLeft: 4,
-                width: 18,
-                height: 18,
-              }}
-            />
-          </View>
-        </TouchableOpacity>
+      {/* Random Items */}
+      <View className="bg-secondaryLight border-y border-neutral pb-3 my-3">
+        <View className="bg-secondary flex-row items-center justify-between p-3 border-b">
+          <Text className="text-neutral text-2xl font-psemibold ml-3 pt-3 px-3 pb-2 mr-1">Random Graded Items</Text>
+          <TouchableOpacity onPress={handleGradesPress} className="flex-row justify-between border bg-neutral items-center rounded mx-3">
+            <View className="flex-row items-center p-3 mr-1 ">
+              <Text className="text-accent text-base font-pmedium my-1">See more</Text>
+              <Image
+                source={icons.rightArrow}
+                resizeMode="contain"
+                style={{
+                  tintColor: '#FFD700',
+                  marginLeft: 4,
+                  width: 18,
+                  height: 18,
+                }}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
         <FlatList
           data={randomItems}
           renderItem={renderItem}
@@ -194,26 +193,29 @@ export default function App() {
         />
       </View>
 
-      <View className="bg-secondaryLight border-y border-neutral py-3 my-3">
-        <TouchableOpacity onPress={handleFiltersPress} className="flex-row justify-between border bg-neutral items-center rounded mx-3">
-          <Text className="text-accent text-lg font-pmedium ml-3 pt-3 px-3 pb-2 mr-1">Random Stats</Text>
-          <View className="flex-row items-center p-3 mr-1 ">
-            <Text className="text-accent text-base font-pmedium my-1">See more</Text>
-            <Image
-              source={icons.rightArrow}
-              resizeMode="contain"
-              style={{
-                tintColor: '#FFD700',
-                marginLeft: 4,
-                width: 18,
-                height: 18,
-              }}
-            />
-          </View>
-        </TouchableOpacity>
+      {/* Random Stats */}
+      <View className="bg-secondaryLight border-y border-neutral pb-3 my-3">
+        <View className="bg-secondary flex-row items-center justify-between p-3 border-b">
+          <Text className="text-neutral text-2xl font-psemibold ml-3 pt-3 px-3 pb-2 mr-1">Random Stats</Text>
+          <TouchableOpacity onPress={handleFiltersPress} className="flex-row justify-between border bg-neutral items-center rounded mx-3">
+            <View className="flex-row items-center p-3 mr-1 ">
+              <Text className="text-accent text-base font-pmedium my-1">See more</Text>
+              <Image
+                source={icons.rightArrow}
+                resizeMode="contain"
+                style={{
+                  tintColor: '#FFD700',
+                  marginLeft: 4,
+                  width: 18,
+                  height: 18,
+                }}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
         <View className="max-h-52 flex-row mt-2 border-b border-neutral mx-1">
           <View className="flex-1 border-x border-neutral">
-            <Text className="bg-secondary border-y border-neutral text-center font-pbold p-1 pt-2">
+            <Text className="bg-backgroundAnti border-y border-neutral text-center font-pbold p-1 pt-2 ">
               Tags
             </Text>
             <FlatList
@@ -224,7 +226,7 @@ export default function App() {
             />
           </View>
           <View className="flex-1 border-r border-neutral">
-            <Text className="bg-secondary border-y border-neutral text-center font-pbold p-1 pt-2">
+            <Text className="bg-backgroundAnti border-y border-neutral text-center font-pbold p-1 pt-2">
               Criterias
             </Text>
             <FlatList
@@ -237,6 +239,8 @@ export default function App() {
         </View>
       </View>
 
+
+      {/* Adding Modal */}
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
         <View className="flex-1 justify-center p-6 bg-backgroundAnti">
           <Text className="text-2xl font-pextrabold mb-4 self-center">
