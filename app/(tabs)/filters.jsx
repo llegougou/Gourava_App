@@ -102,7 +102,7 @@ const Filters = () => {
             <FlatList
               data={tagCounts.slice(0, visibleTagsCount)}
               renderItem={renderItem}
-              keyExtractor={(item) => item.tag}
+              keyExtractor={(item, index) => `${item.name}-${index}`}
               scrollEnabled={false}
             />
             {tagCounts.length > 4 && renderSeeMoreButton('tags')}
@@ -118,7 +118,7 @@ const Filters = () => {
             <FlatList
               data={criteriasCounts.slice(0, visibleCriteriasCount)}
               renderItem={renderItem}
-              keyExtractor={(item) => item.name}
+              keyExtractor={(item, index) => `${item.name}-${index}`}
               scrollEnabled={false}
             />
             {criteriasCounts.length > 4 && renderSeeMoreButton('criterias')}
@@ -134,7 +134,7 @@ const Filters = () => {
             <FlatList
               data={templatesCounts.slice(0, visibleTemplatesCount)}
               renderItem={renderItem}
-              keyExtractor={(item) => item.tag}
+              keyExtractor={(item, index) => `${item.name}-${index}`}
               scrollEnabled={false}
             />
             {templatesCounts.length > 4 && renderSeeMoreButton('templates')}

@@ -47,8 +47,7 @@ const Grades = () => {
       fetchItems();
     }, [])
   );
-
-  const allTags = [...new Set(items.flatMap(item => item.tags))];
+  const allTags = [...new Set(items.flatMap(item => item.tags.map(tag => tag.name)))];
 
   const toggleTagSelection = (tag) => {
     setSelectedTags((prev) =>
@@ -87,7 +86,7 @@ const Grades = () => {
           return false;
         }
       }
-      if (selectedTags.length > 0 && !selectedTags.every(tag => item.tags.includes(tag))) {
+      if (selectedTags.length > 0 && !selectedTags.every(tag => item.tags.some(t => t.name === tag))) {
         return false;
       }
       return true;
@@ -137,7 +136,7 @@ const Grades = () => {
   const handleUpdateItem = (item) => {
     setEditItemId(item.id);
     setTitle(item.title);
-    setTags([...item.tags]);
+    setTags(item.tags.map(tag => tag.name));
     setCriteria(item.criteriaRatings.map(crit => crit.name));
     setRatings(item.criteriaRatings.map(crit => String(crit.rating)));
     setModalVisible(true);
@@ -149,11 +148,15 @@ const Grades = () => {
         return {
           ...item,
           title,
-          tags: tags.filter(tag => tag),
-          criteriaRatings: criteria.map((crit, index) => ({
-            name: crit,
-            rating: parseFloat(ratings[index]) || 0,
-          })).filter(crit => crit.name),
+          tags: tags
+            .map(tag => ({ name: tag.trim() }))
+            .filter(tag => tag.name !== ''),
+          criteriaRatings: criteria
+            .map((crit, index) => ({
+              name: crit.trim(),
+              rating: parseFloat(ratings[index]) || 0,
+            }))
+            .filter(crit => crit.name.trim() !== ''),
         };
       }
       return item;
@@ -280,22 +283,22 @@ const Grades = () => {
 
       {/* List of Items */}
       <ScrollView>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <FlatList
-          data={leftColumnItems}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => 'left-' + index.toString()}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={false}
-        />
-        <FlatList
-          data={rightColumnItems}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => 'right-' + index.toString()}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={false}
-        />
-      </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <FlatList
+            data={leftColumnItems}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => 'left-' + index.toString()}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={false}
+          />
+          <FlatList
+            data={rightColumnItems}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => 'right-' + index.toString()}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={false}
+          />
+        </View>
       </ScrollView>
 
       {/* Modal */}

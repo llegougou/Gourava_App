@@ -3,6 +3,10 @@ import { View, Text, FlatList, TouchableOpacity, Image, Alert, StyleSheet, Layou
 
 import { icons } from '@/constants';
 
+interface Tag {
+  name: string;
+}
+
 interface Criteria {
   name: string;
   rating: number;
@@ -10,7 +14,7 @@ interface Criteria {
 
 interface ItemInfoCardProps {
   title: string;
-  tags: string[];
+  tags: Tag[];
   criteriaRatings: Criteria[];
   showButtons?: boolean;
   onDelete: () => void;
@@ -91,10 +95,10 @@ const ItemInfoCard = ({ title, tags, criteriaRatings, showButtons, onDelete, onU
           data={tags}
           renderItem={({ item }) => (
             <View style={styles.tag}>
-              <Text style={styles.tagText}>{item}</Text>
+              <Text style={styles.tagText}>{item.name}</Text>
             </View>
           )}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item, index) => item.name || index.toString()}
           horizontal
         />
       </View>
@@ -102,7 +106,6 @@ const ItemInfoCard = ({ title, tags, criteriaRatings, showButtons, onDelete, onU
       <View>
         {criteriaRatings.map((criteria, index) => (
           <View key={index} style={styles.criteriaRow}>
-            {/* Only render criteria name and stars if they are valid */}
             {criteria.name && criteria.name.trim() ? (
               <>
                 <Text style={styles.criteriaText}>{criteria.name}</Text>

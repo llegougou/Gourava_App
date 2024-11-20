@@ -24,7 +24,6 @@ export default function App() {
   const [tags, setTags] = useState(["", "", ""]);
   const [criteria, setCriteria] = useState(["", "", ""]);
   const [ratings, setRatings] = useState(["", "", ""]);
-  const [items, setItems] = useState([]);
   const [randomItems, setRandomItems] = useState([]);
   const [tagsCounts, setTagsCounts] = useState([]);
   const [criteriasCounts, setCriteriasCounts] = useState([]);
@@ -40,9 +39,6 @@ export default function App() {
 
   const loadItems = async () => {
     await initializeDatabase();
-    const fetchedItems = await getItems(0);
-    setItems(fetchedItems);
-
     const fetchedRandomItems = await getItems(2);
     setRandomItems(fetchedRandomItems);
   };
@@ -72,13 +68,13 @@ export default function App() {
 
   const handleSave = async () => {
     const isTitleValid = title.trim() !== "";
-    const hasAtLeastOneTag = tags.some((tag) => tag.trim() !== "");
-
+    const hasAtLeastOneTag = tags.some(tag => tag.trim() !== "");
+  
     if (!isTitleValid || !hasAtLeastOneTag) {
       Alert.alert("Error", "Please provide a title and at least one tag.");
       return;
     }
-
+  
     if (!validateRatings()) {
       Alert.alert(
         "Error",
@@ -86,28 +82,27 @@ export default function App() {
       );
       return;
     }
-
+  
     try {
       const filteredCriteria = criteria.map((name, index) => ({
         name,
-        rating: ratings[index].trim() === "" ? undefined : ratings[index]
+        rating: ratings[index].trim() === "" ? undefined : ratings[index],
       })).filter(criteria => criteria.rating !== undefined);
-
-      const filteredTags = tags.filter(tag => tag.trim() !== "");
-
+  
+      const filteredTags = tags
+        .filter(tag => tag.trim() !== "")
+        .map(tag => ({ name: tag }));
+  
       await addItem(title, filteredTags, filteredCriteria);
-
-      setTitle("");
-      setTags(["", "", ""]);
-      setCriteria(["", "", ""]);
-      setRatings(["", "", ""]);
-
+  
+      resetForm();
       setModalVisible(false);
       loadItems();
     } catch (error) {
       console.error("Error saving item:", error);
     }
   };
+  
 
   const resetForm = () => {
     setTitle("");
@@ -131,7 +126,7 @@ export default function App() {
   const renderStats = ({item}) => (
     <View className="flex-row justify-between px-4 py-2">
       <Text className="text-neutral text-lg font-pmedium">
-        {item.tag || item.name}
+        {item.name}
       </Text>
     </View>
   )
@@ -221,7 +216,7 @@ export default function App() {
             <FlatList
               data={tagsCounts}
               renderItem={renderStats}
-              keyExtractor={(item) => item.tag}
+              keyExtractor={(item) => item.name}
               showsVerticalScrollIndicator={false}
             />
           </View>

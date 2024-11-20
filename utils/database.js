@@ -4,7 +4,7 @@ let db;
 
 export const initializeDatabase = async () => {
   if (!db) {
-    db = await SQLite.openDatabaseAsync("itemsDB");
+    db = await SQLite.openDatabaseAsync("GouravaDB");
   }
 
   try {
@@ -17,7 +17,7 @@ export const initializeDatabase = async () => {
       CREATE TABLE IF NOT EXISTS tags (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         item_id INTEGER,
-        tag TEXT,
+        name TEXT,
         FOREIGN KEY (item_id) REFERENCES items(id)
       );
       CREATE TABLE IF NOT EXISTS criteria (
@@ -44,12 +44,12 @@ export const addItem = async (title, tags, criteriaRatings) => {
       [title]
     );
 
-    const itemId = result.lastInsertRowId; 
+    const itemId = result.lastInsertRowId;
 
     for (let tag of tags) {
       await db.runAsync(
-        `INSERT INTO tags (item_id, tag) VALUES (?, ?)`,
-        [itemId, tag]
+        `INSERT INTO tags (item_id, name) VALUES (?, ?)`,
+        [itemId, tag.name]
       );
     }
 
@@ -65,45 +65,46 @@ export const addItem = async (title, tags, criteriaRatings) => {
 };
 
 export const getItems = async (limit) => {
-    try {
-      if (!db) {
-        await initializeDatabase();
-      }
-  
-      let items;
-      
-      if (limit > 0) {
-        items = await db.getAllAsync(`SELECT * FROM items ORDER BY RANDOM() LIMIT ?`, [limit]);
-      } else {
-        items = await db.getAllAsync(`SELECT * FROM items`);
-      }
-  
-      if (!items || items.length === 0) {
-        return [];
-      }
-  
-      const results = [];
-      for (const item of items) {
-        const tags = await db.getAllAsync(`SELECT * FROM tags WHERE item_id = ?`, [item.id]);
-        const criteria = await db.getAllAsync(`SELECT * FROM criteria WHERE item_id = ?`, [item.id]);
-  
-        results.push({
-          id: item.id.toString(),
-          title: item.title,
-          tags: tags.map(tag => tag.tag),
-          criteriaRatings: criteria.map(c => ({
-            name: c.name,
-            rating: c.rating
-          }))
-        });
-      }
-  
-      return results;
-    } catch (error) {
-      console.error("Error getting items:", error);
+  try {
+    if (!db) {
+      await initializeDatabase();
     }
-  };
-  
+
+    let items;
+
+    if (limit > 0) {
+      items = await db.getAllAsync(`SELECT * FROM items ORDER BY RANDOM() LIMIT ?`, [limit]);
+    } else {
+      items = await db.getAllAsync(`SELECT * FROM items`);
+    }
+
+    if (!items || items.length === 0) {
+      return [];
+    }
+
+    const results = [];
+    for (const item of items) {
+      const tags = await db.getAllAsync(`SELECT * FROM tags WHERE item_id = ?`, [item.id]);
+      const criteria = await db.getAllAsync(`SELECT * FROM criteria WHERE item_id = ?`, [item.id]);
+
+      results.push({
+        id: item.id.toString(),
+        title: item.title,
+        tags: tags.map(tag => ({
+          name: tag.name
+        })),
+        criteriaRatings: criteria.map(c => ({
+          name: c.name,
+          rating: c.rating
+        }))
+      });
+    }
+
+    return results;
+  } catch (error) {
+    console.error("Error getting items:", error);
+  }
+};
 
 export const getTagsUsageCount = async (limit) => {
   try {
@@ -111,15 +112,15 @@ export const getTagsUsageCount = async (limit) => {
       await initializeDatabase();
     }
 
-    let tagsUsageCount
+    let tagsUsageCount;
 
     if (limit > 0) {
       tagsUsageCount = await db.getAllAsync(
-        `SELECT tag, COUNT(*) as usage_count FROM tags GROUP BY tag ORDER BY RANDOM() LIMIT ?`, [limit]
+        `SELECT name, COUNT(*) as usage_count FROM tags GROUP BY name ORDER BY RANDOM() LIMIT ?`, [limit]
       );
     } else {
       tagsUsageCount = await db.getAllAsync(
-        `SELECT tag, COUNT(*) as usage_count FROM tags GROUP BY tag ORDER BY usage_count DESC`
+        `SELECT name, COUNT(*) as usage_count FROM tags GROUP BY name ORDER BY usage_count DESC`
       );
     }
     return tagsUsageCount;
@@ -134,7 +135,7 @@ export const getCriteriaUsageCount = async (limit) => {
       await initializeDatabase();
     }
 
-    let criteriaUsageCount
+    let criteriaUsageCount;
 
     if (limit > 0) {
       criteriaUsageCount = await db.getAllAsync(
@@ -178,13 +179,12 @@ export const updateItem = async (id, title, tags, criteriaRatings) => {
     await db.runAsync(`DELETE FROM criteria WHERE item_id = ?`, [id]);
 
     for (let tag of tags) {
-      await db.runAsync(`INSERT INTO tags (item_id, tag) VALUES (?, ?)`, [id, tag]);
+      await db.runAsync(`INSERT INTO tags (item_id, name) VALUES (?, ?)`, [id, tag.name]);
     }
 
     for (let criteria of criteriaRatings) {
       await db.runAsync(
         `INSERT INTO criteria (item_id, name, rating) VALUES (?, ?, ?)`,
-
         [id, criteria.name, criteria.rating]
       );
     }
