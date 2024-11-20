@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import ItemInfoCard from '../../components/ItemInfoCard';
+import FormModal from '../../components/FormModal';
 import { icons } from '../../constants';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -142,37 +143,40 @@ const Grades = () => {
     setModalVisible(true);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (newTitle, newTags, newCriteria, ratings) => {
     const updatedItems = items.map((item) => {
       if (item.id === editItemId) {
         return {
           ...item,
-          title,
-          tags: tags
-            .map(tag => ({ name: tag.trim() }))
+          title: newTitle,
+          tags: newTags
+            .map(tag => ({ name: tag.trim() })) 
             .filter(tag => tag.name !== ''),
-          criteriaRatings: criteria
+          criteriaRatings: newCriteria
             .map((crit, index) => ({
               name: crit.trim(),
               rating: parseFloat(ratings[index]) || 0,
             }))
-            .filter(crit => crit.name.trim() !== ''),
+            .filter(crit => crit.name.trim() !== ''), 
         };
       }
       return item;
     });
 
     const item = updatedItems.find(item => item.id === editItemId);
+    
     if (item) {
       try {
-        await updateItem(item.id, item.title, item.tags, item.criteriaRatings);
-        setItems(updatedItems);
         setModalVisible(false);
+        await updateItem(item.id, item.title, item.tags, item.criteriaRatings);
+        
+        setItems(updatedItems);
+        
       } catch (error) {
         console.error("Error updating item:", error);
       }
     }
-  };
+};
 
   return (
     <SafeAreaView style={{ paddingBottom: '15%' }} className="flex-1 bg-background px-4 py-6 pt-14">
@@ -302,163 +306,15 @@ const Grades = () => {
       </ScrollView>
 
       {/* Modal */}
-      <Modal animationType="slide" transparent={false} visible={modalVisible}>
-        <View className="flex-1 justify-center p-6 bg-backgroundAnti">
-          <Text className="text-2xl font-pextrabold mb-4 self-center">
-            New Tasting
-          </Text>
-          <Text className="font-pbold mb-2 mx-5 text-primary">Title</Text>
-          <TextInput
-            placeholder="Title"
-            placeholderTextColor="#424242"
-            value={title}
-            onChangeText={setTitle}
-            className="text-secondaryLight border border-neutral py-2 px-4 mb-4 rounded bg-background font-psemibold"
-          />
-          <Text className="font-pbold mb-2 mx-5 text-primary">Tags</Text>
-
-          <TextInput
-            placeholder="Tag 1"
-            placeholderTextColor="#424242"
-            value={tags[0]}
-            onChangeText={(text) => {
-              const newTags = [...tags];
-              newTags[0] = text;
-              setTags(newTags);
-            }}
-            className="text-secondaryLight border border-neutral py-2 px-4 mb-2 rounded bg-background font-psemibold"
-          />
-
-          {tags[0] ? (
-            <TextInput
-              placeholder="Tag 2"
-              placeholderTextColor="#424242"
-              value={tags[1]}
-              onChangeText={(text) => {
-                const newTags = [...tags];
-                newTags[1] = text;
-                setTags(newTags);
-              }}
-              className="text-secondaryLight border border-neutral py-2 px-4 mb-2 rounded bg-background font-psemibold"
-            />
-          ) : null}
-
-          {tags[1] ? (
-            <TextInput
-              placeholder="Tag 3"
-              placeholderTextColor="#424242"
-              value={tags[2]}
-              onChangeText={(text) => {
-                const newTags = [...tags];
-                newTags[2] = text;
-                setTags(newTags);
-              }}
-              className="text-secondaryLight border border-neutral py-2 px-4 mb-4 rounded bg-background font-psemibold"
-            />
-          ) : null}
-
-          <View className="flex-row justify-between">
-            <Text className="font-pbold mb-2 mx-5 text-primary">Criterias</Text>
-            <Text className="font-pbold mb-2 mx-7 text-primary">Rating</Text>
-          </View>
-          <View className="flex-row items-center mb-2">
-            <TextInput
-              placeholder="Criteria 1"
-              placeholderTextColor="#424242"
-              value={criteria[0]}
-              onChangeText={(text) => {
-                const newCriteria = [...criteria];
-                newCriteria[0] = text;
-                setCriteria(newCriteria);
-              }}
-              className="text-secondaryLight border border-neutral py-2 px-4 mb-2 rounded bg-background font-psemibold flex-1 mr-2 align"
-            />
-            <TextInput
-              placeholder="(0-5)"
-              placeholderTextColor="#424242"
-              value={ratings[0]}
-              keyboardType="numeric"
-              onChangeText={(text) => {
-                const newRatings = [...ratings];
-                newRatings[0] = text;
-                setRatings(newRatings);
-              }}
-              className="text-secondaryLight border border-neutral py-2 px-4 mb-2 rounded bg-background font-psemibold w-24"
-            />
-          </View>
-
-          {criteria[0] ? (
-            <View className="flex-row items-center mb-2">
-              <TextInput
-                placeholder="Criteria 2"
-                placeholderTextColor="#424242"
-                value={criteria[1]}
-                onChangeText={(text) => {
-                  const newCriteria = [...criteria];
-                  newCriteria[1] = text;
-                  setCriteria(newCriteria);
-                }}
-                className="text-secondaryLight border border-neutral py-2 px-4 mb-2 rounded bg-background font-psemibold flex-1 mr-2"
-              />
-              <TextInput
-                placeholder="(0-5)"
-                placeholderTextColor="#424242"
-                value={ratings[1]}
-                keyboardType="numeric"
-                onChangeText={(text) => {
-                  const newRatings = [...ratings];
-                  newRatings[1] = text;
-                  setRatings(newRatings);
-                }}
-                className="text-secondaryLight border border-neutral py-2 px-4 mb-2 rounded bg-background font-psemibold w-24"
-              />
-            </View>
-          ) : null}
-
-          {criteria[1] ? (
-            <View className="flex-row items-center mb-2">
-              <TextInput
-                placeholder="Criteria 3"
-                placeholderTextColor="#424242"
-                value={criteria[2]}
-                onChangeText={(text) => {
-                  const newCriteria = [...criteria];
-                  newCriteria[2] = text;
-                  setCriteria(newCriteria);
-                }}
-                className="text-secondaryLight border border-neutral py-2 px-4 mb-2 rounded bg-background font-psemibold flex-1 mr-2"
-              />
-              <TextInput
-                placeholder="(0-5)"
-                placeholderTextColor="#424242"
-                value={ratings[2]}
-                keyboardType="numeric"
-                onChangeText={(text) => {
-                  const newRatings = [...ratings];
-                  newRatings[2] = text;
-                  setRatings(newRatings);
-                }}
-                className="text-secondaryLight border border-neutral py-2 px-4 mb-2 rounded bg-background font-psemibold w-24"
-              />
-            </View>
-          ) : null}
-
-          <View className="flex-row justify-end mb-4">
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              className="bg-secondaryLight rounded-full px-6 py-4 mx-3"
-            >
-              <Text className="text-xl font-pbold text-primary">Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleSave}
-              className="bg-primary rounded-full px-6 py-4 mx-3"
-            >
-              <Text className="text-xl font-pbold text-secondaryLight">Save</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <FormModal
+        typeOfModal="create"
+        title={title}
+        tags={tags.map(tag => ({ name: tag }))}
+        criteria={criteria.map((name, index) => ({ name, rating: ratings[index] ? parseFloat(ratings[index]) : 0 }))}
+        isVisible={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        onSave={handleSave}
+      />
     </SafeAreaView>
   );
 };

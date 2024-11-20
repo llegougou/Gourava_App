@@ -27,6 +27,22 @@ export const initializeDatabase = async () => {
         rating INTEGER,
         FOREIGN KEY (item_id) REFERENCES items(id)
       );
+      CREATE TABLE IF NOT EXISTS templates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT
+      );
+      CREATE TABLE IF NOT EXISTS template_tags (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        template_id INTEGER,
+        name TEXT,
+        FOREIGN KEY (template_id) REFERENCES templates(id)
+      );
+      CREATE TABLE IF NOT EXISTS template_criteria (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        template_id INTEGER,
+        name TEXT,
+        FOREIGN KEY (template_id) REFERENCES templates(id)
+      );
     `);
   } catch (error) {
     console.error("Error initializing database:", error);
@@ -106,6 +122,47 @@ export const getItems = async (limit) => {
   }
 };
 
+export const deleteItem = async (id) => {
+  try {
+    if (!db) {
+      await initializeDatabase();
+    }
+
+    await db.runAsync(`DELETE FROM tags WHERE item_id = ?`, [id]);
+    await db.runAsync(`DELETE FROM criteria WHERE item_id = ?`, [id]);
+
+    await db.runAsync(`DELETE FROM items WHERE id = ?`, [id]);
+  } catch (error) {
+    console.error("Error deleting item:", error);
+  }
+};
+
+export const updateItem = async (id, title, tags, criteriaRatings) => {
+  try {
+    if (!db) {
+      await initializeDatabase();
+    }
+
+    await db.runAsync(`UPDATE items SET title = ? WHERE id = ?`, [title, id]);
+
+    await db.runAsync(`DELETE FROM tags WHERE item_id = ?`, [id]);
+    await db.runAsync(`DELETE FROM criteria WHERE item_id = ?`, [id]);
+
+    for (let tag of tags) {
+      await db.runAsync(`INSERT INTO tags (item_id, name) VALUES (?, ?)`, [id, tag.name]);
+    }
+
+    for (let criteria of criteriaRatings) {
+      await db.runAsync(
+        `INSERT INTO criteria (item_id, name, rating) VALUES (?, ?, ?)`,
+        [id, criteria.name, criteria.rating]
+      );
+    }
+  } catch (error) {
+    console.error("Error updating item:", error);
+  }
+};
+
 export const getTagsUsageCount = async (limit) => {
   try {
     if (!db) {
@@ -152,43 +209,123 @@ export const getCriteriaUsageCount = async (limit) => {
   }
 };
 
-export const deleteItem = async (id) => {
+export const createTemplate = async (name, tags, criteria) => {
   try {
     if (!db) {
       await initializeDatabase();
     }
 
-    await db.runAsync(`DELETE FROM tags WHERE item_id = ?`, [id]);
-    await db.runAsync(`DELETE FROM criteria WHERE item_id = ?`, [id]);
+    const result = await db.runAsync(`INSERT INTO templates (name) VALUES (?)`, [name]);
+    const templateId = result.lastInsertRowId;
 
-    await db.runAsync(`DELETE FROM items WHERE id = ?`, [id]);
+    for (let tag of tags) {
+      await db.runAsync(`INSERT INTO template_tags (template_id, name) VALUES (?, ?)`, [templateId, tag]);
+    }
+
+    for (let criterion of criteria) {
+      await db.runAsync(`INSERT INTO template_criteria (template_id, name) VALUES (?, ?)`, [templateId, criterion]);
+    }
+
+    return templateId;
   } catch (error) {
-    console.error("Error deleting item:", error);
+    console.error("Error creating template:", error);
   }
 };
 
-export const updateItem = async (id, title, tags, criteriaRatings) => {
+export const getTemplates = async () => {
   try {
     if (!db) {
       await initializeDatabase();
     }
 
-    await db.runAsync(`UPDATE items SET title = ? WHERE id = ?`, [title, id]);
+    const templates = await db.getAllAsync(`SELECT * FROM templates`);
 
-    await db.runAsync(`DELETE FROM tags WHERE item_id = ?`, [id]);
-    await db.runAsync(`DELETE FROM criteria WHERE item_id = ?`, [id]);
+    if (!templates || templates.length === 0) {
+      return [];
+    }
+
+    const results = [];
+    for (const template of templates) {
+      const tags = await db.getAllAsync(`SELECT * FROM template_tags WHERE template_id = ?`, [template.id]);
+      const criteria = await db.getAllAsync(`SELECT * FROM template_criteria WHERE template_id = ?`, [template.id]);
+
+      results.push({
+        id: template.id.toString(),
+        name: template.name,
+        tags: tags.map(tag => ({ name: tag.name })),
+        criteria: criteria.map(c => ({ name: c.name }))
+      });
+    }
+
+    return results;
+  } catch (error) {
+    console.error("Error getting templates:", error);
+  }
+};
+
+export const getTemplateById = async (templateId) => {
+  try {
+    if (!db) {
+      await initializeDatabase();
+    }
+
+    const template = await db.getAsync(`SELECT * FROM templates WHERE id = ?`, [templateId]);
+
+    if (!template) {
+      return null; 
+    }
+
+    const tags = await db.getAllAsync(`SELECT name FROM template_tags WHERE template_id = ?`, [templateId]);
+
+    const criteria = await db.getAllAsync(`SELECT name FROM template_criteria WHERE template_id = ?`, [templateId]);
+
+    return {
+      id: template.id.toString(),
+      name: template.name,
+      tags: tags.map(tag => ({ name: tag.name })),
+      criteria: criteria.map(c => ({ name: c.name }))
+    };
+  } catch (error) {
+    console.error("Error getting template by ID:", error);
+  }
+};
+
+export const updateTemplate = async (templateId, name, tags, criteria) => {
+  try {
+    if (!db) {
+      await initializeDatabase();
+    }
+
+    await db.runAsync(`UPDATE templates SET name = ? WHERE id = ?`, [name, templateId]);
+
+    await db.runAsync(`DELETE FROM template_tags WHERE template_id = ?`, [templateId]);
+    await db.runAsync(`DELETE FROM template_criteria WHERE template_id = ?`, [templateId]);
 
     for (let tag of tags) {
-      await db.runAsync(`INSERT INTO tags (item_id, name) VALUES (?, ?)`, [id, tag.name]);
+      await db.runAsync(`INSERT INTO template_tags (template_id, name) VALUES (?, ?)`, [templateId, tag]);
     }
 
-    for (let criteria of criteriaRatings) {
-      await db.runAsync(
-        `INSERT INTO criteria (item_id, name, rating) VALUES (?, ?, ?)`,
-        [id, criteria.name, criteria.rating]
-      );
+    for (let criterion of criteria) {
+      await db.runAsync(`INSERT INTO template_criteria (template_id, name) VALUES (?, ?)`, [templateId, criterion]);
     }
+
   } catch (error) {
-    console.error("Error updating item:", error);
+    console.error("Error updating template:", error);
+  }
+};
+
+export const deleteTemplate = async (templateId) => {
+  try {
+    if (!db) {
+      await initializeDatabase();
+    }
+
+    await db.runAsync(`DELETE FROM template_tags WHERE template_id = ?`, [templateId]);
+    await db.runAsync(`DELETE FROM template_criteria WHERE template_id = ?`, [templateId]);
+
+    await db.runAsync(`DELETE FROM templates WHERE id = ?`, [templateId]);
+
+  } catch (error) {
+    console.error("Error deleting template:", error);
   }
 };
