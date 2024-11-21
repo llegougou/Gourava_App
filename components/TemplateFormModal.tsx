@@ -199,8 +199,7 @@ const TemplateFormModal = ({
 const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
-        justifyContent: "center",
-        padding: 24,
+        paddingHorizontal: 24,
         backgroundColor: '#DCC8AA',
     },
     modalTitle: {

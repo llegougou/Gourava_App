@@ -252,8 +252,8 @@ const ItemFormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel
 const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
-        justifyContent: "center",
-        padding: 24,
+        paddingHorizontal: 24,
+        paddingVertical:10,
         backgroundColor: '#DCC8AA',
     },
     modalTitle: {

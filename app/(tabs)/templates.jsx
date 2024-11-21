@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image } from 'react-native';
 import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
@@ -21,6 +22,8 @@ const Templates = () => {
     const [updateTags, setUpdateTags] = useState(["", "", ""]);
     const [updateCriteria, setUpdateCriteria] = useState(["", "", ""]);
     const [updateTemplateId, setUpdateTemplateId] = useState("");
+
+    const statusBarColor = modalCreationVisible || modalUpdateVisible ? '#DCC8AA' : '#FFF3E0';
 
     const loadTemplates = async () => {
         try {
@@ -232,6 +235,7 @@ const Templates = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-background pt-14 pb-20">
+            <StatusBar backgroundColor={statusBarColor} barStyle="dark-content" style="dark" />
             <TouchableOpacity
                 className="bg-primary rounded-xl px-6 py-4 mx-4 my-8 border border-neutral"
                 onPress={() => setModalCreationVisible(true)}

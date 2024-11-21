@@ -33,6 +33,12 @@ export default function App() {
   const [templateTags, setTemplateTags] = useState(["", "", ""]);
   const [templateCriteria, setTemplateCriteria] = useState(["", "", ""]);
 
+  const statusBarColor = 
+        templateModalVisible || customModalVisible || choiceModalVisible
+            ? '#DCC8AA'
+            : '#FFF3E0';
+
+
   const navigation = useNavigation();
 
   useFocusEffect(
@@ -134,7 +140,7 @@ export default function App() {
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-24">
-      <StatusBar style="light" backgroundColor="#0000" />
+      <StatusBar backgroundColor={statusBarColor} barStyle="dark-content" style="dark" />
       <Text className="text-4xl text-primaryLight font-pextrabold ml-4">WELCOME TO</Text>
       <Text className="text-7xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
       <View className="items-end">
@@ -282,7 +288,7 @@ export default function App() {
 
       {/* Custom Adding Modal */}
       <ItemFormModal
-        typeOfModal="create"
+        typeOfModal="customCreate"
         title={title}
         tags={tags.map(tag => ({ name: tag }))}
         criteria={criteria.map((name, index) => ({ name, rating: ratings[index] }))}
@@ -293,7 +299,7 @@ export default function App() {
 
       {/* Template Adding Modal */}
       <ItemFormModal
-        typeOfModal="create"
+        typeOfModal="fromTemplateCreate"
         title={title}
         tags={templateTags.map((tag) => ({ name: tag }))}
         criteria={templateCriteria.map((name, index) => ({

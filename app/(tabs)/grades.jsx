@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import {
   SafeAreaView,
   View,
@@ -31,6 +32,8 @@ const Grades = () => {
   const [tags, setTags] = useState(['']);
   const [criteria, setCriteria] = useState(['']);
   const [ratings, setRatings] = useState(['']);
+
+  const statusBarColor = modalVisible ? '#DCC8AA' : '#FFF3E0';
 
   const searchInputRef = useRef(null);
 
@@ -179,6 +182,7 @@ const Grades = () => {
 
   return (
     <SafeAreaView style={{ paddingBottom: '15%' }} className="flex-1 bg-background px-4 py-6 pt-14">
+      <StatusBar backgroundColor={statusBarColor} barStyle="dark-content" style="dark" />
 
       {/* SearchBar */}
       <View>
