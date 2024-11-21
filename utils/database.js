@@ -252,11 +252,10 @@ export const getTemplates = async () => {
       results.push({
         id: template.id.toString(),
         name: template.name,
-        tags: tags.map(tag => ({ name: tag.name })),
-        criteria: criteria.map(c => ({ name: c.name }))
+        tags: tags.map(tag => tag.name), 
+        criteria: criteria.map(c => c.name), 
       });
     }
-
     return results;
   } catch (error) {
     console.error("Error getting templates:", error);
@@ -269,7 +268,7 @@ export const getTemplateById = async (templateId) => {
       await initializeDatabase();
     }
 
-    const template = await db.getAsync(`SELECT * FROM templates WHERE id = ?`, [templateId]);
+    const template = await db.getFirstAsync(`SELECT * FROM templates WHERE id = ?`, [templateId]);
 
     if (!template) {
       return null; 

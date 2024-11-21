@@ -9,15 +9,12 @@ import { getTagsUsageCount, getCriteriaUsageCount } from '../../utils/database';
 const Filters = () => {
   const [tagCounts, setTagCounts] = useState([]);
   const [criteriasCounts, setCriteriasCounts] = useState([]);
-  const [templatesCounts, setTemplatesCounts] = useState([]);
 
   const [visibleTagsCount, setVisibleTagsCount] = useState(4);
   const [visibleCriteriasCount, setVisibleCriteriasCount] = useState(4);
-  const [visibleTemplatesCount, setVisibleTemplatesCount] = useState(4);
-
+  
   const [isExpandedTags, setIsExpandedTags] = useState(false);
   const [isExpandedCriterias, setIsExpandedCriterias] = useState(false);
-  const [isExpandedTemplates, setIsExpandedTemplates] = useState(false);
 
   const loadCounts = async () => {
     const tags = await getTagsUsageCount(0);
@@ -34,7 +31,7 @@ const Filters = () => {
 
   const renderItem = ({ item }) => (
     <View className="flex-row justify-between px-4 py-2">
-      <Text className="text-neutral text-lg font-pbold">{item.tag || item.name}</Text>
+      <Text className="text-neutral text-lg font-pbold">{item.name}</Text>
       <Text className="text-neutral text-lg">{item.usage_count}</Text>
     </View>
   );
@@ -46,9 +43,6 @@ const Filters = () => {
     } else if (section === 'criterias') {
       setIsExpandedCriterias(true);
       setVisibleCriteriasCount(criteriasCounts.length);
-    } else if (section === 'templates') {
-      setIsExpandedTemplates(true);
-      setVisibleTemplatesCount(templatesCounts.length);
     }
   };
 
@@ -59,9 +53,6 @@ const Filters = () => {
     } else if (section === 'criterias') {
       setIsExpandedCriterias(false);
       setVisibleCriteriasCount(4);
-    } else if (section === 'templates') {
-      setIsExpandedTemplates(false);
-      setVisibleTemplatesCount(4);
     }
   };
 
@@ -69,7 +60,7 @@ const Filters = () => {
     const isExpanded =
       section === 'tags' ? isExpandedTags :
         section === 'criterias' ? isExpandedCriterias :
-          isExpandedTemplates;
+          false;
 
     return (
       <View className="flex-row justify-center">
@@ -122,22 +113,6 @@ const Filters = () => {
               scrollEnabled={false}
             />
             {criteriasCounts.length > 4 && renderSeeMoreButton('criterias')}
-          </View>
-        </View>
-
-        {/* TEMPLATES Section */}
-        <View style={{ marginVertical: '2%' }}>
-          <View className="bg-backgroundAnti border border-neutral py-4">
-            <Text className="text-neutral text-center text-xl font-pextrabold">TEMPLATES</Text>
-          </View>
-          <View className="bg-secondaryLight border border-t-0 border-neutral py-4">
-            <FlatList
-              data={templatesCounts.slice(0, visibleTemplatesCount)}
-              renderItem={renderItem}
-              keyExtractor={(item, index) => `${item.name}-${index}`}
-              scrollEnabled={false}
-            />
-            {templatesCounts.length > 4 && renderSeeMoreButton('templates')}
           </View>
         </View>
       </ScrollView>

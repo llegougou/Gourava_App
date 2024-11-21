@@ -6,16 +6,15 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  Modal,
   ScrollView
 } from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import ItemInfoCard from '../../components/ItemInfoCard';
-import FormModal from '../../components/FormModal';
 import { icons } from '../../constants';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { getItems, deleteItem, updateItem } from "../../utils/database";
+import ItemFormModal from '../../components/ItemFormModal';
 
 const Grades = () => {
   const [isTagsVisible, setTagsVisible] = useState(false);
@@ -306,7 +305,7 @@ const Grades = () => {
       </ScrollView>
 
       {/* Modal */}
-      <FormModal
+      <ItemFormModal
         typeOfModal="create"
         title={title}
         tags={tags.map(tag => ({ name: tag }))}

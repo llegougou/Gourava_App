@@ -5,7 +5,7 @@ interface Tag {
     name: string;
 }
 
-interface Criteria {
+interface Criterion {
     name: string;
     rating: number;
 }
@@ -14,18 +14,18 @@ interface FormModalProps {
     typeOfModal: string;
     title: string;
     tags: Tag[];
-    criteria: Criteria[];
+    criteria: Criterion[];
     isVisible: boolean;
     onCancel: () => void;
     onSave: (title: string, tags: string[], criteria: string[], criteriaratings: string[]) => void;
 }
 
-const FormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel, onSave }: FormModalProps) => {
+const ItemFormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel, onSave }: FormModalProps) => {
     const [newTitle, setTitle] = useState(title);
     const [newTags, setTags] = useState(tags.map(tag => tag.name));
     const [newCriteria, setCriteria] = useState(criteria.map(criterion => criterion.name));
     const [ratings, setRatings] = useState(criteria.map(criterion => criterion.rating.toString()));
-
+    
     useEffect(() => {
         setTitle(title);
         setTags(tags.map(tag => tag.name));
@@ -41,14 +41,6 @@ const FormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel, on
         case 'update':
             modalTitle = 'Update Tasting';
             break;
-        case 'createTemplate':
-            modalTitle = 'New Template';
-            break;
-        case 'updateTemplate':
-            modalTitle = 'Update Template';
-            break;
-        default:
-            modalTitle = 'Default Title';
     }
 
     const handleSave = () => {
@@ -170,17 +162,17 @@ const FormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel, on
                         }}
                         style={[styles.input, styles.criteriaInput]}
                     />
-                    <TextInput
-                        placeholder="(0-5)"
-                        placeholderTextColor="#424242"
-                        value={ratings[0]}
-                        keyboardType="numeric"
-                        onChangeText={(text) => {
-                            const updatedRatings = [...ratings];
-                            updatedRatings[0] = text;
-                            setRatings(updatedRatings);
-                        }}
-                        style={[styles.input, styles.ratingInput]}
+                        <TextInput
+                            placeholder="(0-5)"
+                            placeholderTextColor="#424242"
+                            value={ratings[0]}
+                            keyboardType="numeric"
+                            onChangeText={(text) => {
+                                const updatedRatings = [...ratings];
+                                updatedRatings[0] = text;
+                                setRatings(updatedRatings);
+                            }}
+                            style={[styles.input, styles.ratingInput]}
                     />
                 </View>
 
@@ -197,17 +189,17 @@ const FormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel, on
                             }}
                             style={[styles.input, styles.criteriaInput]}
                         />
-                        <TextInput
-                            placeholder="(0-5)"
-                            placeholderTextColor="#424242"
-                            value={ratings[1]}
-                            keyboardType="numeric"
-                            onChangeText={(text) => {
-                                const updatedRatings = [...ratings];
-                                updatedRatings[1] = text;
-                                setRatings(updatedRatings);
-                            }}
-                            style={[styles.input, styles.ratingInput]}
+                            <TextInput
+                                placeholder="(0-5)"
+                                placeholderTextColor="#424242"
+                                value={ratings[1]}
+                                keyboardType="numeric"
+                                onChangeText={(text) => {
+                                    const updatedRatings = [...ratings];
+                                    updatedRatings[1] = text;
+                                    setRatings(updatedRatings);
+                                }}
+                                style={[styles.input, styles.ratingInput]}
                         />
                     </View>
                 )}
@@ -225,17 +217,17 @@ const FormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel, on
                             }}
                             style={[styles.input, styles.criteriaInput]}
                         />
-                        <TextInput
-                            placeholder="(0-5)"
-                            placeholderTextColor="#424242"
-                            value={ratings[2]}
-                            keyboardType="numeric"
-                            onChangeText={(text) => {
-                                const updatedRatings = [...ratings];
-                                updatedRatings[2] = text;
-                                setRatings(updatedRatings);
-                            }}
-                            style={[styles.input, styles.ratingInput]}
+                            <TextInput
+                                placeholder="(0-5)"
+                                placeholderTextColor="#424242"
+                                value={ratings[2]}
+                                keyboardType="numeric"
+                                onChangeText={(text) => {
+                                    const updatedRatings = [...ratings];
+                                    updatedRatings[2] = text;
+                                    setRatings(updatedRatings);
+                                }}
+                                style={[styles.input, styles.ratingInput]}
                         />
                     </View>
                 )}
@@ -329,4 +321,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default FormModal;
+export default ItemFormModal;

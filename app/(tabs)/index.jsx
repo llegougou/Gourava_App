@@ -4,15 +4,14 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Alert,
   FlatList,
   Image,
 } from "react-native";
 import React, { useState, useMemo } from "react";
 import { useFocusEffect } from '@react-navigation/native';
-import { initializeDatabase, addItem, getItems, getTagsUsageCount, getCriteriaUsageCount } from "../../utils/database";
+import { initializeDatabase, addItem, getItems, getTagsUsageCount, getCriteriaUsageCount, getTemplateById } from "../../utils/database";
 import ItemInfoCard from '../../components/ItemInfoCard';
-import FormModal from '../../components/FormModal';
+import ItemFormModal from '../../components/ItemFormModal';
 import { useNavigation } from "@react-navigation/native";
 
 import { icons } from '../../constants';
@@ -101,7 +100,7 @@ export default function App() {
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-24">
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <Text className="text-4xl text-primaryLight font-pextrabold ml-4">WELCOME TO</Text>
       <Text className="text-7xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
       <View className="items-end">
@@ -196,7 +195,7 @@ export default function App() {
 
 
       {/* Adding Modal */}
-      <FormModal
+      <ItemFormModal
         typeOfModal="create"
         title={title}
         tags={tags.map(tag => ({ name: tag }))}

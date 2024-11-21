@@ -96,6 +96,21 @@ const TabsLayout = () => {
           }}
         />
         <Tabs.Screen
+          name='templates'
+          options={{
+            title: 'Templates',
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.template}
+                color={color}
+                name="Templates"
+                focused={focused}
+              />
+            )
+          }}
+        />
+        <Tabs.Screen
           name='filters'
           options={{
             title: 'Filters',
