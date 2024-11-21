@@ -35,12 +35,16 @@ const ItemFormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel
 
     let modalTitle = '';
     switch (typeOfModal) {
-        case 'create':
-            modalTitle = 'New Tasting';
+        case 'customCreate':
+            modalTitle = 'New Custom Tasting';
             break;
         case 'update':
             modalTitle = 'Update Tasting';
             break;
+        case 'fromTemplateCreate':
+            modalTitle = 'New Tasting from Template';
+            break;
+
     }
 
     const handleSave = () => {

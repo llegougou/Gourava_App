@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  Modal
 } from "react-native";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useFocusEffect } from '@react-navigation/native';
-import { initializeDatabase, addItem, getItems, getTagsUsageCount, getCriteriaUsageCount, getTemplateById } from "../../utils/database";
+import { initializeDatabase, addItem, getItems, getTagsUsageCount, getCriteriaUsageCount, getTemplates } from "../../utils/database";
 import ItemInfoCard from '../../components/ItemInfoCard';
 import ItemFormModal from '../../components/ItemFormModal';
 import { useNavigation } from "@react-navigation/native";
@@ -17,7 +18,9 @@ import { useNavigation } from "@react-navigation/native";
 import { icons } from '../../constants';
 
 export default function App() {
-  const [modalVisible, setModalVisible] = useState(false);
+  const [templateModalVisible, setTemplateModalVisible] = useState(false);
+  const [customModalVisible, setCustomModalVisible] = useState(false);
+  const [choiceModalVisible, setChoiceModalVisible] = useState(false);
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState(["", "", ""]);
   const [criteria, setCriteria] = useState(["", "", ""]);
@@ -25,6 +28,10 @@ export default function App() {
   const [randomItems, setRandomItems] = useState([]);
   const [tagsCounts, setTagsCounts] = useState([]);
   const [criteriasCounts, setCriteriasCounts] = useState([]);
+  const [templates, setTemplates] = useState([]);
+  const [templateTitle, setTemplateTitle] = useState("");
+  const [templateTags, setTemplateTags] = useState(["", "", ""]);
+  const [templateCriteria, setTemplateCriteria] = useState(["", "", ""]);
 
   const navigation = useNavigation();
 
@@ -32,6 +39,7 @@ export default function App() {
     React.useCallback(() => {
       loadItems();
       loadCounts();
+      loadTemplates();
     }, [])
   );
 
@@ -48,6 +56,11 @@ export default function App() {
     setCriteriasCounts(criterias);
   }
 
+  const loadTemplates = async () => {
+    const templates = await getTemplates();
+    setTemplates(templates);
+  }
+
   const handleSave = async (newTitle, newTags, newCriteria, ratings) => {
     try {
       const filteredCriteria = newCriteria.map((name, index) => ({
@@ -58,9 +71,10 @@ export default function App() {
       const filteredTags = newTags
         .filter(tag => tag.trim() !== "")
         .map(tag => ({ name: tag }));
-      
-        
-      setModalVisible(false);
+
+      setCustomModalVisible(false);
+      setTemplateModalVisible(false);
+      setChoiceModalVisible(false);
       await addItem(newTitle, filteredTags, filteredCriteria);
 
       loadItems();
@@ -68,6 +82,16 @@ export default function App() {
     } catch (error) {
       console.error("Error saving item:", error);
     }
+  };
+
+  const handleTemplateSelect = async (templateId) => {
+    const selectedTemplate = templates.find((template) => template.id === templateId);
+    if (selectedTemplate) {
+      setTemplateTitle(selectedTemplate.name);
+      setTemplateTags(selectedTemplate.tags);
+      setTemplateCriteria(selectedTemplate.criteria);
+    }
+    setTemplateModalVisible(true);
   };
 
   const renderItem = ({ item }) => (
@@ -82,7 +106,7 @@ export default function App() {
     </View>
   );
 
-  const renderStats = ({item}) => (
+  const renderStats = ({ item }) => (
     <View className="flex-row justify-between px-4 py-2">
       <Text className="text-neutral text-lg font-pmedium">
         {item.name}
@@ -98,9 +122,19 @@ export default function App() {
     navigation.navigate('filters');
   }
 
+  const handleTemplatesPress = () => {
+    navigation.navigate('templates');
+    setChoiceModalVisible(false)
+  }
+
+  const resetTemplateForm =()=>{
+    setTemplateTags(["", "", ""]);
+    setTemplateCriteria(["", "", ""]);
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-background pt-24">
-      <StatusBar style="light" />
+      <StatusBar style="light" backgroundColor="#0000" />
       <Text className="text-4xl text-primaryLight font-pextrabold ml-4">WELCOME TO</Text>
       <Text className="text-7xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
       <View className="items-end">
@@ -108,18 +142,19 @@ export default function App() {
         <Text className="text-3xl text-secondary mb-4 font-psemibold mr-4">RATE EVERY TASTE!</Text>
       </View>
 
-      {/* Add Button */}
+
+      {/* Template Add Button */}
       <TouchableOpacity
         className="bg-primary rounded-xl px-6 py-4 mx-4 mb-2 border border-neutral"
-        onPress={() => setModalVisible(true)}
+        onPress={() => setChoiceModalVisible(true)}
       >
         <Text className="text-xl font-bold text-background text-center">
-          GRADE SOMETHING NEW
+          GRADE A NEW ITEM
         </Text>
       </TouchableOpacity>
 
       {/* Random Items */}
-      <View className="bg-secondaryLight border-y border-neutral pb-3 my-3">
+      <View className="bg-secondaryLight border-y border-neutral my-3">
         <View className="bg-secondary flex-row items-center justify-between p-3 border-b">
           <Text className="text-neutral text-2xl font-psemibold ml-3 pt-3 px-3 pb-2 mr-1">Random Graded Items</Text>
           <TouchableOpacity onPress={handleGradesPress} className="flex-row justify-between border bg-neutral items-center rounded mx-3">
@@ -193,15 +228,80 @@ export default function App() {
         </View>
       </View>
 
+      {/* Choice Modal */}
+      <Modal animationType="slide" transparent={false} visible={choiceModalVisible}>
+        <View className="flex-1 bg-backgroundAnti p-4">
 
-      {/* Adding Modal */}
+        <Text className="text-primary text-xl font-pextrabold mt-10">Create a custom template...</Text>
+          {/* Custom Template Creation Section */}
+          <TouchableOpacity
+            className="m-3 px-4 pt-4 pb-3 border border-neutral bg-background rounded-md mb-6"
+            onPress={() => {setCustomModalVisible(true)}}
+          >
+            <Text className="text-neutral text-lg font-pbold text-center">Create Custom Template</Text>
+          </TouchableOpacity>
+
+          <Text className="text-primary text-xl font-pextrabold">... or choose an existing template</Text>
+          {/* Templates Section */}
+          {templates.length > 0 ? (
+            <FlatList
+              data={templates}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: 'space-between' }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  className="flex-1 m-3 px-4 pt-4 pb-3 border border-neutral bg-background rounded-md"
+                  onPress={() => handleTemplateSelect(item.id)}
+                >
+                  <Text className="font-psemibold text-lg text-center text-neutral">{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <View>
+              <Text className="text-secondary text-lg font-pbold text-center mt-4">No Templates Found</Text>
+              <TouchableOpacity
+                className="m-3 px-4 pt-4 pb-3 border border-neutral bg-background rounded-md mb-6"
+                onPress={handleTemplatesPress}
+              >
+                <Text className="text-neutral text-lg font-pbold text-center">Create a template</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Close Modal Button */}
+          <TouchableOpacity
+            className="mt-4 bg-secondary px-4 py-4 rounded-md items-center"
+            onPress={() => setChoiceModalVisible(false)}
+          >
+            <Text className="text-background text-xl font-pbold">Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      {/* Custom Adding Modal */}
       <ItemFormModal
         typeOfModal="create"
         title={title}
         tags={tags.map(tag => ({ name: tag }))}
         criteria={criteria.map((name, index) => ({ name, rating: ratings[index] }))}
-        isVisible={modalVisible}
-        onCancel={() => setModalVisible(false)}
+        isVisible={customModalVisible}
+        onCancel={() => setCustomModalVisible(false)}
+        onSave={handleSave}
+      />
+
+      {/* Template Adding Modal */}
+      <ItemFormModal
+        typeOfModal="create"
+        title={title}
+        tags={templateTags.map((tag) => ({ name: tag }))}
+        criteria={templateCriteria.map((name, index) => ({
+          name,
+          rating: '',
+        }))}
+        isVisible={templateModalVisible}
+        onCancel={() =>{setTemplateModalVisible(false); resetTemplateForm();}}
         onSave={handleSave}
       />
 

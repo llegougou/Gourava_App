@@ -27,7 +27,7 @@ const TabIcon = ({ icon, color, name, focused }: TabIconProps) => {
 }
 
 const TabsLayout = () => {
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false); // State for keyboard visibility
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {

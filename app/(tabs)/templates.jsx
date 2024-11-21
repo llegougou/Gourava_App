@@ -76,7 +76,6 @@ const Templates = () => {
                 setExpandedTemplateId(null);
             }
 
-            console.log('Template deleted successfully:', templateId);
         } catch (error) {
             console.error('Error deleting template:', error);
         }
@@ -106,13 +105,10 @@ const Templates = () => {
             const filteredTags = newTags.filter(tag => tag.trim() !== "");
             const filteredCriteria = newCriteria.filter(criterion => criterion.trim() !== "");
 
-            // Close the modal after saving
             setModalUpdateVisible(false);
 
-            // Call the database function to update the template
             await updateTemplate(updateTemplateId, newTitle, filteredTags, filteredCriteria);
 
-            // Reload the templates to reflect the update
             loadTemplates();
         } catch (error) {
             console.error("Error updating template:", error);
