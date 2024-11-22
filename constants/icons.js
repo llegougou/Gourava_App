@@ -8,6 +8,7 @@ import deleteIcon from "../assets/icons/delete.png";
 import halfStar from "../assets/icons/halfStar.png";
 import navArrow from "../assets/icons/downNavArrow.png";
 import template from "../assets/icons/template.png"
+import rightArrow from "../assets/icons/right-arrow.png"
 
 export default {
   home,
@@ -19,5 +20,6 @@ export default {
   update,
   halfStar,
   navArrow,
-  template
+  template,
+  rightArrow
 };
