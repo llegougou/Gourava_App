@@ -9,7 +9,7 @@ import {
   Image,
   ScrollView
 } from 'react-native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ItemInfoCard from '../../components/ItemInfoCard';
 import { icons } from '../../constants';
 import { useFocusEffect } from '@react-navigation/native';
@@ -18,6 +18,7 @@ import { getItems, deleteItem, updateItem } from "../../utils/database";
 import ItemFormModal from '../../components/ItemFormModal';
 
 const Grades = () => {
+
   const [isTagsVisible, setTagsVisible] = useState(false);
   const [isOrderByVisible, setOrderByVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -49,7 +50,8 @@ const Grades = () => {
       };
       fetchItems();
     }, [])
-  );
+  );  
+
   const allTags = [...new Set(items.flatMap(item => item.tags.map(tag => tag.name)))];
 
   const toggleTagSelection = (tag) => {
@@ -74,22 +76,29 @@ const Grades = () => {
     return total / criteriaRatings.length;
   };
 
-
   const filteredAndSortedItems = items
     .filter((item) => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        if (
-          !item.title.toLowerCase().includes(query) &&
-          !item.tags.some((tag) => tag.toLowerCase().includes(query)) &&
-          !item.criteriaRatings.some((criteria) =>
-            criteria.name.toLowerCase().includes(query)
-          )
-        ) {
+        const titleMatch = item.title && item.title.toLowerCase().includes(query);
+        const tagsMatch =
+          item.tags &&
+          item.tags.some((tag) => typeof tag === 'string' && tag.toLowerCase().includes(query));
+        const criteriaRatingsMatch =
+          item.criteriaRatings &&
+          item.criteriaRatings.some(
+            (criteria) => criteria.name && criteria.name.toLowerCase().includes(query)
+          );
+
+        if (!titleMatch && !tagsMatch && !criteriaRatingsMatch) {
           return false;
         }
       }
-      if (selectedTags.length > 0 && !selectedTags.every(tag => item.tags.some(t => t.name === tag))) {
+
+      if (
+        selectedTags.length > 0 &&
+        !selectedTags.every(tag =>
+          item.tags.some(t => t.name === tag))) {
         return false;
       }
       return true;
@@ -110,8 +119,18 @@ const Grades = () => {
     });
 
   const splitData = (data) => {
-    const midIndex = Math.ceil(data.length / 2);
-    return [data.slice(0, midIndex), data.slice(midIndex)];
+    const leftColumn = [];
+    const rightColumn = [];
+
+    data.forEach((item, index) => {
+      if (index % 2 === 0) {
+        leftColumn.push(item);
+      } else {
+        rightColumn.push(item);
+      }
+    });
+
+    return [leftColumn, rightColumn];
   };
 
   const [leftColumnItems, rightColumnItems] = splitData(filteredAndSortedItems);
@@ -152,36 +171,36 @@ const Grades = () => {
           ...item,
           title: newTitle,
           tags: newTags
-            .map(tag => ({ name: tag.trim() })) 
+            .map(tag => ({ name: tag.trim() }))
             .filter(tag => tag.name !== ''),
           criteriaRatings: newCriteria
             .map((crit, index) => ({
               name: crit.trim(),
               rating: parseFloat(ratings[index]) || 0,
             }))
-            .filter(crit => crit.name.trim() !== ''), 
+            .filter(crit => crit.name.trim() !== ''),
         };
       }
       return item;
     });
 
     const item = updatedItems.find(item => item.id === editItemId);
-    
+
     if (item) {
       try {
         setModalVisible(false);
         await updateItem(item.id, item.title, item.tags, item.criteriaRatings);
-        
+
         setItems(updatedItems);
-        
+
       } catch (error) {
         console.error("Error updating item:", error);
       }
     }
-};
+  };
 
   return (
-    <SafeAreaView style={{ paddingBottom: '15%' }} className="flex-1 bg-background px-4 py-6 pt-14">
+    <SafeAreaView className="flex-1  bg-background px-4 pt-14">
       <StatusBar backgroundColor={statusBarColor} barStyle="dark-content" style="dark" />
 
       {/* SearchBar */}
@@ -223,7 +242,7 @@ const Grades = () => {
           onPress={() => displayTags()}
           className="bg-primary rounded-full px-6 py-4"
         >
-          <Text className="text-xl font-pbold text-secondaryLight">Tags</Text>
+          <Text className="text-xl font-pbold text-secondaryLight">Filters</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => displayOrderBy()}
@@ -250,7 +269,7 @@ const Grades = () => {
               onPress={() => setSelectedTags([])}
               className="border border-neutral p-3 rounded-lg mb-2 mr-2 bg-accent"
             >
-              <Text className="text-neutral">Reset All Tags</Text>
+              <Text className="text-neutral">Reset All Filters</Text>
             </TouchableOpacity>
           </View>
         </View>

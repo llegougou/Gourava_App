@@ -10,8 +10,8 @@ const Filters = () => {
   const [tagCounts, setTagCounts] = useState([]);
   const [criteriasCounts, setCriteriasCounts] = useState([]);
 
-  const [visibleTagsCount, setVisibleTagsCount] = useState(4);
-  const [visibleCriteriasCount, setVisibleCriteriasCount] = useState(4);
+  const [visibleTagsCount, setVisibleTagsCount] = useState(10);
+  const [visibleCriteriasCount, setVisibleCriteriasCount] = useState(10);
   
   const [isExpandedTags, setIsExpandedTags] = useState(false);
   const [isExpandedCriterias, setIsExpandedCriterias] = useState(false);
@@ -49,10 +49,10 @@ const Filters = () => {
   const handleSeeLess = (section) => {
     if (section === 'tags') {
       setIsExpandedTags(false);
-      setVisibleTagsCount(4);
+      setVisibleTagsCount(10);
     } else if (section === 'criterias') {
       setIsExpandedCriterias(false);
-      setVisibleCriteriasCount(4);
+      setVisibleCriteriasCount(10);
     }
   };
 
@@ -82,7 +82,7 @@ const Filters = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background pt-14 pb-20">
+    <SafeAreaView className="flex-1 bg-background pt-14">
       <ScrollView>
         {/* TAGS Section */}
         <View style={{ marginVertical: '2%' }}>
@@ -96,7 +96,7 @@ const Filters = () => {
               keyExtractor={(item, index) => `${item.name}-${index}`}
               scrollEnabled={false}
             />
-            {tagCounts.length > 4 && renderSeeMoreButton('tags')}
+            {tagCounts.length > 10 && renderSeeMoreButton('tags')}
           </View>
         </View>
 
@@ -112,7 +112,7 @@ const Filters = () => {
               keyExtractor={(item, index) => `${item.name}-${index}`}
               scrollEnabled={false}
             />
-            {criteriasCounts.length > 4 && renderSeeMoreButton('criterias')}
+            {criteriasCounts.length > 10 && renderSeeMoreButton('criterias')}
           </View>
         </View>
       </ScrollView>

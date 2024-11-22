@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Image, Keyboard, SafeAreaView } from 'react-native';
 import { Tabs } from 'expo-router';
 import { icons } from '../../constants';
 
@@ -44,9 +44,8 @@ const TabsLayout = () => {
   }, []);
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+    <SafeAreaView
+      style={{ flex: 1 }}
     >
       <Tabs
         screenOptions={{
@@ -58,7 +57,6 @@ const TabsLayout = () => {
           tabBarStyle: {
             height: 70, 
             display: isKeyboardVisible ? 'none' : 'flex', 
-            position: 'absolute', 
             bottom: 0,
             borderWidth:1,
             borderColor:'#424242'
@@ -126,7 +124,7 @@ const TabsLayout = () => {
           }}
         />
       </Tabs>
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

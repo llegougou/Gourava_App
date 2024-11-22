@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -69,7 +69,18 @@ const Templates = () => {
         }
     };
 
-    const handleDelete = async (templateId) => {
+    const handleDelete = () => {
+        Alert.alert(
+            "Confirm Delete",
+            `Are you sure you want to delete ?`,
+            [
+                { text: "Cancel", style: "cancel" },
+                { text: "OK", onPress: onDelete }
+            ]
+        );
+    };
+
+    const onDelete = async (templateId) => {
         try {
             await deleteTemplate(templateId);
 
@@ -173,12 +184,12 @@ const Templates = () => {
 
                 {isExpanded && (
                     <View className="px-4 mt-2 mx-6">
-                        <View className="flex-row justify-between items-center">
+                        <View className="flex-row justify-between items-start">
                             {/* Tags List */}
                             <View className="flex-1">
                                 <Text className="text-neutral font-pextrabold mb-2">Tags:</Text>
                                 {item.tags.map((tag, index) => (
-                                    <Text key={index} className="text-neutral mb-1">
+                                    <Text key={index} className="text-neutral font-pmedium mb-1">
                                         {tag}
                                     </Text>
                                 ))}
@@ -188,43 +199,41 @@ const Templates = () => {
                             <View className="flex-1">
                                 <Text className="text-neutral font-pextrabold mb-2">Criterias:</Text>
                                 {item.criteria.map((criterion, index) => (
-                                    <Text key={index} className="text-neutral mb-1">
+                                    <Text key={index} className="text-neutral font-pmedium mb-1">
                                         {criterion}
                                     </Text>
                                 ))}
                             </View>
 
-                            {/* Action Button */}
-                            <View className="flex-1 justify-end">
-                                <View className="flex-row items-center space-x-2 ml-6">
-                                    <TouchableOpacity
-                                        className="bg-primaryLight p-2 rounded-full border border-neutral mr-4"
-                                        onPress={() => handleUpdate(item.id)}
-                                    >
-                                        <Image
-                                            source={icons.update}
-                                            style={{
-                                                width: 20,
-                                                height: 20,
-                                                tintColor: '#424242',
-                                            }}
-                                        />
-                                    </TouchableOpacity>
+                            {/* Action Buttons */}
+                            <View className="flex-row flex-1 justify-center items-center h-full space-x-2 ml-6">
+                                <TouchableOpacity
+                                    className="bg-primaryLight p-2 rounded-full border border-neutral mr-4"
+                                    onPress={() => handleUpdate(item.id)}
+                                >
+                                    <Image
+                                        source={icons.update}
+                                        style={{
+                                            width: 20,
+                                            height: 20,
+                                            tintColor: '#424242',
+                                        }}
+                                    />
+                                </TouchableOpacity>
 
-                                    <TouchableOpacity
-                                        className="bg-secondary p-2 rounded-full border border-neutral"
-                                        onPress={() => handleDelete(item.id)}
-                                    >
-                                        <Image
-                                            source={icons.deleteIcon}
-                                            style={{
-                                                width: 20,
-                                                height: 20,
-                                                tintColor: '#424242',
-                                            }}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
+                                <TouchableOpacity
+                                    className="bg-secondary p-2 rounded-full border border-neutral"
+                                    onPress={() => handleDelete(item.id)}
+                                >
+                                    <Image
+                                        source={icons.deleteIcon}
+                                        style={{
+                                            width: 20,
+                                            height: 20,
+                                            tintColor: '#424242',
+                                        }}
+                                    />
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </View>
