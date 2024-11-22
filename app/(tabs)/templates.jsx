@@ -23,8 +23,6 @@ const Templates = () => {
     const [updateCriteria, setUpdateCriteria] = useState(["", "", ""]);
     const [updateTemplateId, setUpdateTemplateId] = useState("");
 
-    const statusBarColor = modalCreationVisible || modalUpdateVisible ? '#DCC8AA' : '#FFF3E0';
-
     const loadTemplates = async () => {
         try {
             const fetchedTemplates = await getTemplates();
@@ -244,7 +242,7 @@ const Templates = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-background pt-14 pb-20">
-            <StatusBar backgroundColor={statusBarColor} barStyle="dark-content" style="dark" />
+            <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
             <TouchableOpacity
                 className="bg-primary rounded-xl px-6 py-4 mx-4 my-8 border border-neutral"
                 onPress={() => setModalCreationVisible(true)}

@@ -34,8 +34,6 @@ const Grades = () => {
   const [criteria, setCriteria] = useState(['']);
   const [ratings, setRatings] = useState(['']);
 
-  const statusBarColor = modalVisible ? '#DCC8AA' : '#FFF3E0';
-
   const searchInputRef = useRef(null);
 
   const loadItems = async () => {
@@ -50,7 +48,7 @@ const Grades = () => {
       };
       fetchItems();
     }, [])
-  );  
+  );
 
   const allTags = [...new Set(items.flatMap(item => item.tags.map(tag => tag.name)))];
 
@@ -136,7 +134,7 @@ const Grades = () => {
   const [leftColumnItems, rightColumnItems] = splitData(filteredAndSortedItems);
 
   const renderItem = ({ item }) => (
-    <View style={{ flex: 1, margin: 10 }}>
+    <View style={{ flex: 1, margin: 5 }}>
       <ItemInfoCard
         id={item.id}
         title={item.title}
@@ -200,9 +198,8 @@ const Grades = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1  bg-background px-4 pt-14">
-      <StatusBar backgroundColor={statusBarColor} barStyle="dark-content" style="dark" />
-
+    <SafeAreaView className="flex-1  bg-background px-3 pt-14">
+      <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
       {/* SearchBar */}
       <View>
         <View className="my-6" style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -311,6 +308,7 @@ const Grades = () => {
       <ScrollView>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <FlatList
+            style={{ width: '48%' }}
             data={leftColumnItems}
             renderItem={renderItem}
             keyExtractor={(item, index) => 'left-' + index.toString()}
@@ -318,6 +316,7 @@ const Grades = () => {
             scrollEnabled={false}
           />
           <FlatList
+            style={{ width: '48%' }}
             data={rightColumnItems}
             renderItem={renderItem}
             keyExtractor={(item, index) => 'right-' + index.toString()}

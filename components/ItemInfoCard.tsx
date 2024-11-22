@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#00796B',
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 4,
+    marginRight: 4,
   },
   deleteButton: {
     width: 35,
@@ -172,6 +172,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginVertical: 8,
+    alignItems: 'center',
   },
   tag: {
     borderRadius: 45,
@@ -189,11 +190,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 4,
+    overflow:'hidden'
   },
   criteriaText: {
     fontSize: 14,
     fontWeight: '500',
-    marginRight: 6
+    marginRight: 6,
+    flexShrink: 1,
   },
   starsContainer: {
     flexDirection: 'row',

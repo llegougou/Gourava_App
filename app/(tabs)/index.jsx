@@ -33,12 +33,6 @@ export default function App() {
   const [templateTags, setTemplateTags] = useState(["", "", ""]);
   const [templateCriteria, setTemplateCriteria] = useState(["", "", ""]);
 
-  const statusBarColor = 
-        templateModalVisible || customModalVisible || choiceModalVisible
-            ? '#DCC8AA'
-            : '#FFF3E0';
-
-
   const navigation = useNavigation();
 
   useFocusEffect(
@@ -133,14 +127,14 @@ export default function App() {
     setChoiceModalVisible(false)
   }
 
-  const resetTemplateForm =()=>{
+  const resetTemplateForm = () => {
     setTemplateTags(["", "", ""]);
     setTemplateCriteria(["", "", ""]);
   }
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-24">
-      <StatusBar backgroundColor={statusBarColor} barStyle="dark-content" style="dark" />
+      <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
       <Text className="text-4xl text-primaryLight font-pextrabold ml-4">WELCOME TO</Text>
       <Text className="text-7xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
       <View className="items-end">
@@ -238,11 +232,11 @@ export default function App() {
       <Modal animationType="slide" transparent={false} visible={choiceModalVisible}>
         <View className="flex-1 bg-backgroundAnti p-4">
 
-        <Text className="text-primary text-xl font-pextrabold mt-10">Create a custom template...</Text>
+          <Text className="text-primary text-xl font-pextrabold mt-10">Create a custom template...</Text>
           {/* Custom Template Creation Section */}
           <TouchableOpacity
             className="m-3 px-4 pt-4 pb-3 border border-neutral bg-background rounded-md mb-6"
-            onPress={() => {setCustomModalVisible(true)}}
+            onPress={() => { setCustomModalVisible(true) }}
           >
             <Text className="text-neutral text-lg font-pbold text-center">Create Custom Template</Text>
           </TouchableOpacity>
@@ -307,7 +301,7 @@ export default function App() {
           rating: '',
         }))}
         isVisible={templateModalVisible}
-        onCancel={() =>{setTemplateModalVisible(false); resetTemplateForm();}}
+        onCancel={() => { setTemplateModalVisible(false); resetTemplateForm(); }}
         onSave={handleSave}
       />
 

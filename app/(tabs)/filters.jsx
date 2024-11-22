@@ -1,3 +1,4 @@
+import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image } from 'react-native';
 import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
@@ -83,6 +84,7 @@ const Filters = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-14">
+       <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
       <ScrollView>
         {/* TAGS Section */}
         <View style={{ marginVertical: '2%' }}>
