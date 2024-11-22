@@ -69,13 +69,13 @@ const Templates = () => {
         }
     };
 
-    const handleDelete = () => {
+    const handleDelete = (templateId) => {
         Alert.alert(
             "Confirm Delete",
             `Are you sure you want to delete ?`,
             [
                 { text: "Cancel", style: "cancel" },
-                { text: "OK", onPress: onDelete }
+                { text: "OK", onPress: () => onDelete(templateId) }
             ]
         );
     };
