@@ -87,7 +87,7 @@ const Filters = () => {
         {/* TAGS Section */}
         <View style={{ marginVertical: '2%' }}>
           <View className="bg-backgroundAnti border border-neutral py-4">
-            <Text className="text-neutral text-center text-xl font-pextrabold">TAGS</Text>
+            <Text className="text-neutral text-center text-xl font-pextrabold">Tags Usage</Text>
           </View>
           <View className="bg-secondaryLight border border-t-0 border-neutral py-4">
             <FlatList
@@ -100,10 +100,10 @@ const Filters = () => {
           </View>
         </View>
 
-        {/* CRITERIAS Section */}
+        {/* CRITERIA Section */}
         <View style={{ marginVertical: '2%' }}>
           <View className="bg-backgroundAnti border border-neutral py-4">
-            <Text className="text-neutral text-center text-xl font-pextrabold">CRITERIAS</Text>
+            <Text className="text-neutral text-center text-xl font-pextrabold">Criteria Usage</Text>
           </View>
           <View className="bg-secondaryLight border border-t-0 border-neutral py-4">
             <FlatList
