@@ -237,13 +237,13 @@ const Grades = () => {
       <View className="flex-row justify-between mb-4">
         <TouchableOpacity
           onPress={() => displayTags()}
-          className="bg-primary rounded-full px-6 py-4"
+          className="bg-primary rounded-md px-6 py-4 border border-neutral"
         >
           <Text className="text-xl font-pbold text-secondaryLight">Filters</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => displayOrderBy()}
-          className="bg-primary rounded-full px-6 py-4"
+          className="bg-primary rounded-md px-6 py-4 border border-neutral"
         >
           <Text className="text-xl font-pbold text-secondaryLight">Order By</Text>
         </TouchableOpacity>
@@ -251,20 +251,20 @@ const Grades = () => {
 
       {/* Filter By */}
       {isTagsVisible && (
-        <View className="flex-wrap flex-row bg-primaryLight rounded-lg p-4 mb-4">
+        <View className="flex-wrap flex-row bg-primaryLight rounded-md p-4 mb-4">
           <View className="flex-row flex-wrap justify-center items-center">
             {allTags.map((tag) => (
               <TouchableOpacity
                 key={tag}
                 onPress={() => toggleTagSelection(tag)}
-                className={`border border-neutral p-3 rounded-lg mb-2 mr-2 ${selectedTags.includes(tag) ? 'bg-secondary' : 'bg-background'}`}
+                className={`border border-neutral p-3 rounded-md mb-2 mr-2 ${selectedTags.includes(tag) ? 'bg-secondary' : 'bg-background'}`}
               >
                 <Text className={`${selectedTags.includes(tag) ? 'text-background' : 'text-neutral'}`}>{tag}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity
               onPress={() => setSelectedTags([])}
-              className="border border-neutral p-3 rounded-lg mb-2 mr-2 bg-accent"
+              className="border border-neutral p-3 rounded-md mb-2 mr-2 bg-accent"
             >
               <Text className="text-neutral">Reset All Filters</Text>
             </TouchableOpacity>
@@ -274,31 +274,31 @@ const Grades = () => {
 
       {/* Order By */}
       {isOrderByVisible && (
-        <View className="bg-primaryLight rounded-lg p-4 mb-4">
+        <View className="bg-primaryLight rounded-md p-4 mb-4">
           <View className="flex-row flex-wrap justify-center items-center">
             <TouchableOpacity
               onPress={() => setOrderBy('ratingAsc')}
-              className={`border p-3 rounded-lg mb-2 mr-2 ${orderBy === 'ratingAsc' ? 'bg-secondary' : 'bg-white'}`}
+              className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'ratingAsc' ? 'bg-secondary' : 'bg-white'}`}
             >
               <Text className={`${orderBy === 'ratingAsc' ? 'text-white' : 'text-black'}`}>Rating (Ascending)</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setOrderBy('ratingDesc')}
-              className={`border p-3 rounded-lg mb-2 mr-2 ${orderBy === 'ratingDesc' ? 'bg-secondary' : 'bg-white'}`}
+              className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'ratingDesc' ? 'bg-secondary' : 'bg-background'}`}
             >
-              <Text className={`${orderBy === 'ratingDesc' ? 'text-white' : 'text-black'}`}>Rating (Descending)</Text>
+              <Text className={`${orderBy === 'ratingDesc' ? 'text-background' : 'text-neutral'}`}>Rating (Descending)</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setOrderBy('alphabetical')}
-              className={`border p-3 rounded-lg mb-2 mr-2 ${orderBy === 'alphabetical' ? 'bg-secondary' : 'bg-white'}`}
+              className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'alphabetical' ? 'bg-secondary' : 'bg-background'}`}
             >
-              <Text className={`${orderBy === 'alphabetical' ? 'text-white' : 'text-black'}`}>Alphabetical</Text>
+              <Text className={`${orderBy === 'alphabetical' ? 'text-background' : 'text-neutral'}`}>Alphabetical</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setOrderBy('random')}
-              className={`border p-3 rounded-lg mb-2 mr-2 ${orderBy === 'random' ? 'bg-secondary' : 'bg-white'}`}
+              className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'random' ? 'bg-secondary' : 'bg-background'}`}
             >
-              <Text className={`${orderBy === 'random' ? 'text-white' : 'text-black'}`}>Random</Text>
+              <Text className={`${orderBy === 'random' ? 'text-background' : 'text-neutral'}`}>Random</Text>
             </TouchableOpacity>
           </View>
         </View>

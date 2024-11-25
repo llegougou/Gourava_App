@@ -244,7 +244,7 @@ const Templates = () => {
         <SafeAreaView className="flex-1 bg-background pt-14 pb-20">
             <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
             <TouchableOpacity
-                className="bg-primary rounded-xl px-6 py-4 mx-4 my-8 border border-neutral"
+                className="bg-primary rounded-md px-6 py-4 mx-4 my-8 border border-neutral"
                 onPress={() => setModalCreationVisible(true)}
             >
                 <Text className="text-xl font-bold text-background text-center">CREATE NEW TEMPLATE</Text>

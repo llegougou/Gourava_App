@@ -58,7 +58,7 @@ const TabsLayout = () => {
             height: 70, 
             display: isKeyboardVisible ? 'none' : 'flex', 
             bottom: 0,
-            borderWidth:1,
+            borderTopWidth: 1,
             borderColor:'#424242'
           }
         }}

@@ -13,7 +13,7 @@ const Filters = () => {
 
   const [visibleTagsCount, setVisibleTagsCount] = useState(10);
   const [visibleCriteriasCount, setVisibleCriteriasCount] = useState(10);
-  
+
   const [isExpandedTags, setIsExpandedTags] = useState(false);
   const [isExpandedCriterias, setIsExpandedCriterias] = useState(false);
 
@@ -84,7 +84,7 @@ const Filters = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-14">
-       <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
+      <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
       <ScrollView>
         {/* TAGS Section */}
         <View style={{ marginVertical: '2%' }}>
