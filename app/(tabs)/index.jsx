@@ -115,7 +115,7 @@ export default function App() {
 
   const renderStats = ({ item }) => (
     <View className="flex-row justify-between px-4 py-2">
-      <Text className="text-neutral text-lg font-pmedium" ellipsizeMode="tail">
+      <Text className="text-neutral text-lg font-pmedium" ellipsizeMode="tail" numberOfLines={1}>
         {item.name}
       </Text>
     </View>
@@ -144,7 +144,7 @@ export default function App() {
       <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
       <ScrollView>
         <Text className="text-4xl text-primaryLight font-pextrabold ml-4 pt-4">WELCOME TO</Text>
-        <Text className="text-7xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
+        <Text className="text-6xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
         <View className="items-end">
           <Text className="text-2xl  text-secondaryLight font-psemibold mr-6">SAVOR EVERY MOMENT,</Text>
           <Text className="text-3xl text-secondary mb-4 font-psemibold mr-4">RATE EVERY TASTE!</Text>

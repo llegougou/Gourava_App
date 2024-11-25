@@ -100,6 +100,7 @@ const ItemInfoCard = ({ title, tags, criteriaRatings, showButtons, onDelete, onU
           )}
           keyExtractor={(item, index) => item.name || index.toString()}
           horizontal
+          showsHorizontalScrollIndicator={false}
         />
       </View>
 

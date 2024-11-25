@@ -184,7 +184,7 @@ const Templates = () => {
                     <View className="px-4 mt-2 mx-6">
                         <View className="flex-row justify-between items-start">
                             {/* Tags List */}
-                            <View className="flex-1">
+                            <View className="flex-1 mr-4">
                                 <Text className="text-neutral font-pextrabold mb-2">Tags:</Text>
                                 {item.tags.map((tag, index) => (
                                     <Text key={index} className="text-neutral font-pmedium mb-1">
