@@ -278,9 +278,9 @@ const Grades = () => {
           <View className="flex-row flex-wrap justify-center items-center">
             <TouchableOpacity
               onPress={() => setOrderBy('ratingAsc')}
-              className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'ratingAsc' ? 'bg-secondary' : 'bg-white'}`}
+              className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'ratingAsc' ? 'bg-secondary' : 'bg-background'}`}
             >
-              <Text className={`${orderBy === 'ratingAsc' ? 'text-white' : 'text-black'}`}>Rating (Ascending)</Text>
+              <Text className={`${orderBy === 'ratingAsc' ? 'text-background' : 'text-neutral'}`}>Rating (Ascending)</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setOrderBy('ratingDesc')}

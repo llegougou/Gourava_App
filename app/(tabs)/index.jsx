@@ -115,7 +115,7 @@ export default function App() {
 
   const renderStats = ({ item }) => (
     <View className="flex-row justify-between px-4 py-2">
-      <Text className="text-neutral text-lg font-pmedium">
+      <Text className="text-neutral text-lg font-pmedium" ellipsizeMode="tail">
         {item.name}
       </Text>
     </View>
@@ -140,7 +140,7 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background mt-14">
+    <SafeAreaView className="flex-1 bg-background pt-14">
       <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
       <ScrollView>
         <Text className="text-4xl text-primaryLight font-pextrabold ml-4 pt-4">WELCOME TO</Text>
