@@ -166,9 +166,8 @@ export default function App() {
           <View className="bg-secondary flex-row items-center justify-between p-3 border-b">
             <View style={{ flex: 1, marginRight: 8 }}>
               <Text
-                className="text-neutral text-2xl font-psemibold"
-                numberOfLines={2}
-                ellipsizeMode="tail"
+                className="text-neutral text-8xl font-psemibold"
+                style={{ flexWrap: 'wrap' }}
               >
                 Random Graded Items
               </Text>
@@ -209,8 +208,7 @@ export default function App() {
           <View className="bg-secondary flex-row items-center justify-between p-3 border-b">
             <Text
               className="text-neutral text-2xl font-psemibold ml-3 pt-3 px-3 pb-2 mr-1"
-              numberOfLines={2}
-              ellipsizeMode="tail"
+              style={{ flexWrap: 'wrap' }}
             >
               Random Stats
             </Text>
