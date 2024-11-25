@@ -30,12 +30,16 @@ const Stats = () => {
     }, [])
   );
 
-  const renderItem = ({ item }) => (
-    <View className="flex-row justify-between px-4 py-2">
-      <Text className="text-neutral text-lg font-pbold">{item.name}</Text>
-      <Text className="text-neutral text-lg">{item.usage_count}</Text>
-    </View>
-  );
+  const renderItem = ({ item, index }) => {
+    const backgroundColor = index % 2 === 0 ? 'bg-secondaryLight' : 'bg-secondary'
+
+    return (
+      <View className={`flex-row justify-between px-4 pb-2 pt-3 ${backgroundColor}`}>
+        <Text className="text-neutral text-lg font-pbold">{item.name}</Text>
+        <Text className="text-neutral text-lg">{item.usage_count}</Text>
+      </View>
+    )
+  };
 
   const handleSeeMore = (section) => {
     if (section === 'tags') {
@@ -94,7 +98,7 @@ const Stats = () => {
           <View className="bg-backgroundAnti py-4 elevation-md">
             <Text className="text-neutral text-center text-xl font-pextrabold">Tags Usage</Text>
           </View>
-          <View className="bg-secondaryLight py-4">
+          <View className="bg-secondaryLight">
             <FlatList
               data={tagCounts.slice(0, visibleTagsCount)}
               renderItem={renderItem}
@@ -110,7 +114,7 @@ const Stats = () => {
           <View className="bg-backgroundAnti py-4 elevation-md">
             <Text className="text-neutral text-center text-xl font-pextrabold">Criteria Usage</Text>
           </View>
-          <View className="bg-secondaryLight py-4">
+          <View className="bg-secondaryLight">
             <FlatList
               data={criteriasCounts.slice(0, visibleCriteriasCount)}
               renderItem={renderItem}
