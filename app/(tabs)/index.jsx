@@ -166,7 +166,7 @@ export default function App() {
           <View className="bg-secondary flex-row items-center justify-between p-3 border-b">
             <View style={{ flex: 1, marginRight: 8 }}>
               <Text
-                className="text-neutral text-8xl font-psemibold"
+                className="text-neutral text-2xl font-psemibold"
                 style={{ flexWrap: 'wrap' }}
               >
                 Random Graded Items
