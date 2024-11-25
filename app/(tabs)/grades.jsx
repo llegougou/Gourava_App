@@ -141,6 +141,7 @@ const Grades = () => {
         tags={item.tags}
         criteriaRatings={item.criteriaRatings}
         showButtons={true}
+        border={true}
         onDelete={() => handleDeleteItem(item.id)}
         onUpdate={() => handleUpdateItem(item)}
       />
@@ -237,13 +238,13 @@ const Grades = () => {
       <View className="flex-row justify-between mb-4">
         <TouchableOpacity
           onPress={() => displayTags()}
-          className="bg-primary rounded-md px-6 py-4 border border-neutral"
+          className="bg-primary rounded-lg px-6 py-4 border border-neutral"
         >
           <Text className="text-xl font-pbold text-secondaryLight">Filters</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => displayOrderBy()}
-          className="bg-primary rounded-md px-6 py-4 border border-neutral"
+          className="bg-primary rounded-lg px-6 py-4 border border-neutral"
         >
           <Text className="text-xl font-pbold text-secondaryLight">Order By</Text>
         </TouchableOpacity>

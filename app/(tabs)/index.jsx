@@ -109,6 +109,7 @@ export default function App() {
         tags={item.tags}
         criteriaRatings={item.criteriaRatings}
         showButtons={false}
+        border={false}
       />
     </View>
   );
@@ -125,8 +126,8 @@ export default function App() {
     navigation.navigate('grades');
   }
 
-  const handleFiltersPress = () => {
-    navigation.navigate('filters');
+  const handleStatsPress = () => {
+    navigation.navigate('stats');
   }
 
   const handleTemplatesPress = () => {
@@ -153,7 +154,7 @@ export default function App() {
 
         {/* Add Button */}
         <TouchableOpacity
-          className="bg-primary rounded-md px-6 py-4 mx-4 mb-2 border border-neutral"
+          className="bg-primary rounded-lg px-6 py-4 mx-4 mb-2 elevation-md"
           onPress={() => setChoiceModalVisible(true)}
         >
           <Text className="text-xl font-bold text-background text-center">
@@ -162,9 +163,9 @@ export default function App() {
         </TouchableOpacity>
 
         {/* Random Items */}
-        <View className="bg-secondaryLight border-y border-neutral my-3">
-          <View className="bg-secondary flex-row items-center justify-between p-3 border-b">
-            <View style={{ flex: 1, marginRight: 8 }}>
+        <View className="bg-secondaryLight my-3 ">
+          <View className="bg-secondary flex-row items-center justify-between p-3 elevation ">
+            <View style={{ flex: 1, marginHorizontal: 8 }}>
               <Text
                 className="text-neutral text-2xl font-psemibold"
                 style={{ flexWrap: 'wrap' }}
@@ -204,8 +205,8 @@ export default function App() {
         </View>
 
         {/* Random Stats */}
-        <View className="bg-secondaryLight border-y border-neutral pb-3 my-3">
-          <View className="bg-secondary flex-row items-center justify-between p-3 border-b">
+        <View className="bg-secondaryLight pb-3 my-3">
+          <View className="bg-secondary flex-row items-center justify-between p-3 elevation">
             <Text
               className="text-neutral text-2xl font-psemibold ml-3 pt-3 px-3 pb-2 mr-1"
               style={{ flexWrap: 'wrap' }}
@@ -213,7 +214,7 @@ export default function App() {
               Random Stats
             </Text>
             <TouchableOpacity
-              onPress={handleFiltersPress}
+              onPress={handleStatsPress}
               className="flex-row justify-between border bg-neutral items-center rounded-md mx-3"
               style={{ flexShrink: 0 }}
             >
@@ -232,7 +233,7 @@ export default function App() {
               </View>
             </TouchableOpacity>
           </View>
-          <View className="max-h-52 flex-row mt-2 border-b border-neutral mx-1">
+          <View className="max-h-52 flex-row mt-3 border-b border-neutral mx-1">
             <View className="flex-1 border-x border-neutral">
               <Text className="bg-backgroundAnti border-y border-neutral text-center font-pbold p-1 pt-2 ">
                 Tags
@@ -267,7 +268,7 @@ export default function App() {
             <Text className="text-primary text-xl font-pextrabold mt-10">Create a custom item...</Text>
             {/* Custom Template Creation Section */}
             <TouchableOpacity
-              className="m-3 px-4 pt-4 pb-3 border border-neutral bg-background rounded-md mb-6"
+              className="m-3 px-4 pt-4 pb-3 elevation-md bg-background rounded-md mb-6"
               onPress={() => { setCustomModalVisible(true) }}
             >
               <Text className="text-neutral text-lg font-pbold text-center">Create Custom Item</Text>
@@ -283,7 +284,7 @@ export default function App() {
                 columnWrapperStyle={{ justifyContent: 'space-between' }}
                 renderItem={({ item }) => (
                   <TouchableOpacity
-                    className="flex-1 m-3 px-4 pt-4 pb-3 border border-neutral bg-background rounded-md"
+                    className="flex-1 m-3 px-4 pt-4 pb-3 elevation-md bg-background rounded-md"
                     onPress={() => handleTemplateSelect(item.id)}
                   >
                     <Text className="font-psemibold text-lg text-center text-neutral">{item.name}</Text>
@@ -294,7 +295,7 @@ export default function App() {
               <View>
                 <Text className="text-secondary text-lg font-pbold text-center mt-4">No Templates Found</Text>
                 <TouchableOpacity
-                  className="m-3 px-4 pt-4 pb-3 border border-neutral bg-background rounded-md mb-6"
+                  className="m-3 px-4 pt-4 pb-3 elevation-md bg-background rounded-md mb-6"
                   onPress={handleTemplatesPress}
                 >
                   <Text className="text-neutral text-lg font-pbold text-center">Create a template</Text>

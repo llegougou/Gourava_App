@@ -164,11 +164,12 @@ const Templates = () => {
         );
     };
 
-    const renderItem = ({ item }) => {
+    const renderItem = ({ item, index }) => {
         const isExpanded = expandedTemplateId === item.id;
+        const backgroundColor = index % 2 === 0 ? 'bg-secondary' : 'bg-secondaryLight';
 
         return (
-            <View className="border-b border-neutral p-4">
+            <View className={`p-4 ${backgroundColor}`}>
                 <TouchableOpacity
                     className="flex-row justify-between items-center px-4"
                     onPress={() => toggleExpandTemplate(item.id)}
@@ -244,7 +245,7 @@ const Templates = () => {
         <SafeAreaView className="flex-1 bg-background pt-14 pb-20">
             <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
             <TouchableOpacity
-                className="bg-primary rounded-md px-6 py-4 mx-4 my-8 border border-neutral"
+                className="bg-primary rounded-lg px-6 py-4 mx-4 my-8 elevation-md"
                 onPress={() => setModalCreationVisible(true)}
             >
                 <Text className="text-xl font-bold text-background text-center">CREATE NEW TEMPLATE</Text>
@@ -252,12 +253,12 @@ const Templates = () => {
 
             <ScrollView>
                 <View>
-                    <View className="bg-backgroundAnti border border-neutral py-4">
+                    <View className="bg-backgroundAnti elevation py-4">
                         <Text className="text-neutral text-center text-xl font-pextrabold">
                             TEMPLATES
                         </Text>
                     </View>
-                    <View className={`bg-secondaryLight ${templates.length != 0 ? 'border border-t-0' : ''} border-neutral`}>
+                    <View className='bg-secondaryLight'>
                         <FlatList
                             data={templates.slice(0, visibleTemplates)}
                             renderItem={renderItem}

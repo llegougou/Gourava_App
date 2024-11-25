@@ -7,12 +7,12 @@ import { icons } from '../../constants';
 
 import { getTagsUsageCount, getCriteriaUsageCount } from '../../utils/database';
 
-const Filters = () => {
+const Stats = () => {
   const [tagCounts, setTagCounts] = useState([]);
   const [criteriasCounts, setCriteriasCounts] = useState([]);
 
-  const [visibleTagsCount, setVisibleTagsCount] = useState(10);
-  const [visibleCriteriasCount, setVisibleCriteriasCount] = useState(10);
+  const [visibleTagsCount, setVisibleTagsCount] = useState(6);
+  const [visibleCriteriasCount, setVisibleCriteriasCount] = useState(6);
 
   const [isExpandedTags, setIsExpandedTags] = useState(false);
   const [isExpandedCriterias, setIsExpandedCriterias] = useState(false);
@@ -50,10 +50,10 @@ const Filters = () => {
   const handleSeeLess = (section) => {
     if (section === 'tags') {
       setIsExpandedTags(false);
-      setVisibleTagsCount(10);
+      setVisibleTagsCount(6);
     } else if (section === 'criterias') {
       setIsExpandedCriterias(false);
-      setVisibleCriteriasCount(10);
+      setVisibleCriteriasCount(6);
     }
   };
 
@@ -86,12 +86,15 @@ const Filters = () => {
     <SafeAreaView className="flex-1 bg-background pt-14">
       <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
       <ScrollView>
+        {/* Title */}
+        <Text className='text-primary text-center text-4xl font-pextrabold mt-11 mb-5'>USAGE  DASHBOARD</Text>
+
         {/* TAGS Section */}
         <View style={{ marginVertical: '2%' }}>
-          <View className="bg-backgroundAnti border border-neutral py-4">
+          <View className="bg-backgroundAnti py-4 elevation-md">
             <Text className="text-neutral text-center text-xl font-pextrabold">Tags Usage</Text>
           </View>
-          <View className="bg-secondaryLight border border-t-0 border-neutral py-4">
+          <View className="bg-secondaryLight py-4">
             <FlatList
               data={tagCounts.slice(0, visibleTagsCount)}
               renderItem={renderItem}
@@ -104,10 +107,10 @@ const Filters = () => {
 
         {/* CRITERIA Section */}
         <View style={{ marginVertical: '2%' }}>
-          <View className="bg-backgroundAnti border border-neutral py-4">
+          <View className="bg-backgroundAnti py-4 elevation-md">
             <Text className="text-neutral text-center text-xl font-pextrabold">Criteria Usage</Text>
           </View>
-          <View className="bg-secondaryLight border border-t-0 border-neutral py-4">
+          <View className="bg-secondaryLight py-4">
             <FlatList
               data={criteriasCounts.slice(0, visibleCriteriasCount)}
               renderItem={renderItem}
@@ -122,4 +125,4 @@ const Filters = () => {
   );
 };
 
-export default Filters;
+export default Stats;

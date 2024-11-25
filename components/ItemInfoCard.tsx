@@ -17,11 +17,12 @@ interface ItemInfoCardProps {
   tags: Tag[];
   criteriaRatings: Criteria[];
   showButtons?: boolean;
+  border:boolean;
   onDelete: () => void;
-  onUpdate: () => void
+  onUpdate: () => void;
 }
 
-const ItemInfoCard = ({ title, tags, criteriaRatings, showButtons, onDelete, onUpdate }: ItemInfoCardProps) => {
+const ItemInfoCard = ({ title, tags, criteriaRatings, showButtons, border, onDelete, onUpdate }: ItemInfoCardProps) => {
   const [titleFontSize, setTitleFontSize] = useState(20);
 
   const handleLayout = (event: LayoutChangeEvent) => {
@@ -72,8 +73,15 @@ const ItemInfoCard = ({ title, tags, criteriaRatings, showButtons, onDelete, onU
 
   const isSingleWord = title.trim().split(' ').length === 1;
 
+  const cardStyles = [
+    styles.card,
+    border
+      ? styles.borderStyle
+      : styles.elevationStyle
+  ];
+
   return (
-    <View style={styles.card}>
+    <View style={cardStyles}>
       <View style={styles.header} onLayout={isSingleWord ? handleLayout : undefined}>
         <Text style={[styles.title, { fontSize: isSingleWord ? titleFontSize : 16 }]} numberOfLines={isSingleWord ? 1 : undefined} adjustsFontSizeToFit>
           {title}
@@ -125,11 +133,16 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     backgroundColor: '#DCC8AA',
+    marginBottom: 4,
+  },
+  elevationStyle: {
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    marginBottom: 4,
+    elevation: 5,
+  },
+  borderStyle: {
     borderColor: '#089889',
     borderWidth: 1,
   },
