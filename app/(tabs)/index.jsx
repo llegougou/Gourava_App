@@ -104,20 +104,27 @@ export default function App() {
   }
 
   const startRotation = () => {
-    rotationValue.setValue(0); 
+    rotationValue.setValue(0);
     Animated.timing(rotationValue, {
-      toValue: 0.5, 
-      duration: 200, 
-      easing: Easing.linear, 
-      useNativeDriver: true, 
+      toValue: 0.5,
+      duration: 200,
+      easing: Easing.linear,
+      useNativeDriver: true,
     }).start(() => {
     });
   };
 
   const rotateInterpolation = rotationValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'], 
-  });
+    outputRange: ['0deg', '-360deg'],
+  });  
+
+  const onPressAdd = () => {
+    startRotation();
+    setTimeout(() => {
+      setChoiceModalVisible(true);
+    }, 100);
+  };
 
   const accentTextStyle = 'text-secondary font-pextrabold text-xl leading-loose'
 
@@ -168,12 +175,7 @@ export default function App() {
                   position: 'relative',
 
                 }}
-                onPress={() => {
-                  startRotation(); 
-                  setTimeout(() => {
-                    setChoiceModalVisible(true);
-                  }, 100);
-                }}
+                onPress={onPressAdd}
               >
                 <Animated.Image
                   source={icons.add}
@@ -184,7 +186,7 @@ export default function App() {
                     transform: [
                       { translateX: -(squareSize * 0.2) },
                       { translateY: -(squareSize * 0.2) },
-                      { rotate: rotateInterpolation }, 
+                      { rotate: rotateInterpolation },
                     ],
                     width: squareSize * 0.4,
                     height: squareSize * 0.4,

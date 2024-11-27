@@ -98,7 +98,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel
     };
 
     return (
-        <Modal animationType="fade" transparent={false} visible={isVisible}>
+        <Modal animationType="slide" transparent={false} visible={isVisible}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.modalContainer}
