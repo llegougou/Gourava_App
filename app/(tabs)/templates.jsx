@@ -9,8 +9,6 @@ import TemplateFormModal from '../../components/TemplateFormModal';
 
 const Templates = () => {
     const [templates, setTemplates] = useState([]);
-    const [visibleTemplates, setVisibleTemplates] = useState(4);
-    const [isExpandedTemplates, setIsExpandedTemplates] = useState(false);
     const [expandedTemplateId, setExpandedTemplateId] = useState(null);
 
     const [modalCreationVisible, setModalCreationVisible] = useState(false);
@@ -37,17 +35,7 @@ const Templates = () => {
             loadTemplates();
         }, [])
     );
-
-    const handleSeeMore = () => {
-        setIsExpandedTemplates(true);
-        setVisibleTemplates(templates.length);
-    };
-
-    const handleSeeLess = () => {
-        setIsExpandedTemplates(false);
-        setVisibleTemplates(4);
-    };
-
+    
     const toggleExpandTemplate = (id) => {
         setExpandedTemplateId((prevId) => (prevId === id ? null : id));
     };
@@ -127,25 +115,6 @@ const Templates = () => {
         }
     };
 
-    const renderSeeMoreGeneralButton = () => {
-        return (
-            <TouchableOpacity
-                className="flex-row justify-center p-3"
-                onPress={() => isExpandedTemplates ? handleSeeLess() : handleSeeMore()}
-            >
-                <Image
-                    source={icons.navArrow}
-                    style={{
-                        width: 20,
-                        height: 20,
-                        transform: [{ rotate: isExpandedTemplates ? '180deg' : '0deg' }],
-                        tintColor: '#424242',
-                    }}
-                />
-            </TouchableOpacity>
-        );
-    };
-
     const renderSeeMoreTemplateButton = (item) => {
         return (
             <View className="flex-row justify-center">
@@ -166,7 +135,7 @@ const Templates = () => {
 
     const renderItem = ({ item, index }) => {
         const isExpanded = expandedTemplateId === item.id;
-        const backgroundColor = index % 2 === 0 ? 'bg-secondary' : 'bg-secondaryLight';
+        const backgroundColor = index % 2 === 0 ? 'bg-backgroundAnti elevation' : 'bg-background';
 
         return (
             <View className={`p-4 ${backgroundColor}`}>
@@ -188,7 +157,7 @@ const Templates = () => {
                             <View className="flex-1 mr-4">
                                 <Text className="text-neutral font-pextrabold mb-2">Tags:</Text>
                                 {item.tags.map((tag, index) => (
-                                    <Text key={index} className="text-neutral font-pmedium mb-1">
+                                    <Text key={index} className="text-neutral font-pmedium mb-1 ml-2">
                                         {tag}
                                     </Text>
                                 ))}
@@ -198,7 +167,7 @@ const Templates = () => {
                             <View className="flex-1">
                                 <Text className="text-neutral font-pextrabold mb-2">Criterias:</Text>
                                 {item.criteria.map((criterion, index) => (
-                                    <Text key={index} className="text-neutral font-pmedium mb-1">
+                                    <Text key={index} className="text-neutral font-pmedium mb-1 ml-2">
                                         {criterion}
                                     </Text>
                                 ))}
@@ -253,19 +222,18 @@ const Templates = () => {
 
             <ScrollView>
                 <View>
-                    <View className="bg-backgroundAnti elevation py-4">
+                    <View className="bg-secondary elevation py-4">
                         <Text className="text-neutral text-center text-xl font-pextrabold">
                             TEMPLATES
                         </Text>
                     </View>
-                    <View className='bg-secondaryLight'>
+                    <View className="bg-background border-b border-backgroundAnti">
                         <FlatList
-                            data={templates.slice(0, visibleTemplates)}
+                            data={templates}
                             renderItem={renderItem}
                             keyExtractor={(item) => `${item.id}`}
                             scrollEnabled={false}
                         />
-                        {templates.length > 4 && renderSeeMoreGeneralButton()}
                     </View>
                 </View>
             </ScrollView>

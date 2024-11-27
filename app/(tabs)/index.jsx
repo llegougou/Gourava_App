@@ -5,14 +5,15 @@ import {
   View,
   TouchableOpacity,
   FlatList,
-  Image,
   Modal,
-  ScrollView
+  ScrollView,
+  Dimensions,
+  Animated,
+  Easing
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useFocusEffect } from '@react-navigation/native';
-import { initializeDatabase, addItem, getItems, getTagsUsageCount, getCriteriaUsageCount, getTemplates } from "../../utils/database";
-import ItemInfoCard from '../../components/ItemInfoCard';
+import { initializeApp, addItem, getTemplates } from "../../utils/database";
 import ItemFormModal from '../../components/ItemFormModal';
 import { useNavigation } from "@react-navigation/native";
 
@@ -26,36 +27,26 @@ export default function App() {
   const [tags, setTags] = useState(["", "", ""]);
   const [criteria, setCriteria] = useState(["", "", ""]);
   const [ratings, setRatings] = useState(["", "", ""]);
-  const [randomItems, setRandomItems] = useState([]);
-  const [tagsCounts, setTagsCounts] = useState([]);
-  const [criteriasCounts, setCriteriasCounts] = useState([]);
   const [templates, setTemplates] = useState([]);
-  const [templateTitle, setTemplateTitle] = useState("");
   const [templateTags, setTemplateTags] = useState(["", "", ""]);
   const [templateCriteria, setTemplateCriteria] = useState(["", "", ""]);
 
   const navigation = useNavigation();
 
+  const screenWidth = Dimensions.get('window').width;
+  const screenHeight = Dimensions.get('window').height
+  const squareSize = screenWidth * 0.6;
+  const rotationValue = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    initializeApp();
+  }, []);
+
   useFocusEffect(
     React.useCallback(() => {
-      loadItems();
-      loadCounts();
       loadTemplates();
     }, [])
   );
-
-  const loadItems = async () => {
-    await initializeDatabase();
-    const fetchedRandomItems = await getItems(2);
-    setRandomItems(fetchedRandomItems);
-  };
-
-  const loadCounts = async () => {
-    const tags = await getTagsUsageCount(4);
-    setTagsCounts(tags);
-    const criterias = await getCriteriaUsageCount(4);
-    setCriteriasCounts(criterias);
-  }
 
   const loadTemplates = async () => {
     const templates = await getTemplates();
@@ -84,8 +75,6 @@ export default function App() {
       setChoiceModalVisible(false);
       await addItem(trimmedTitle, filteredTags, filteredCriteria);
 
-      loadItems();
-
     } catch (error) {
       console.error("Error saving item:", error);
     }
@@ -94,51 +83,43 @@ export default function App() {
   const handleTemplateSelect = async (templateId) => {
     const selectedTemplate = templates.find((template) => template.id === templateId);
     if (selectedTemplate) {
-      setTemplateTitle(selectedTemplate.name);
       setTemplateTags(selectedTemplate.tags);
       setTemplateCriteria(selectedTemplate.criteria);
     }
     setTemplateModalVisible(true);
   };
 
-  const renderItem = ({ item }) => (
-    <View style={{ flex: 1, margin: 10 }}>
-      <ItemInfoCard
-        id={item.id}
-        title={item.title}
-        tags={item.tags}
-        criteriaRatings={item.criteriaRatings}
-        showButtons={false}
-        border={false}
-      />
-    </View>
-  );
-
-  const renderStats = ({ item }) => (
-    <View className="flex-row justify-between px-4 py-2">
-      <Text className="text-neutral text-lg font-pmedium" ellipsizeMode="tail" numberOfLines={1}>
-        {item.name}
-      </Text>
-    </View>
-  )
-
-  const handleGradesPress = () => {
-    navigation.navigate('grades');
-  }
-
-  const handleStatsPress = () => {
-    navigation.navigate('stats');
-  }
-
   const handleTemplatesPress = () => {
     navigation.navigate('templates');
     setChoiceModalVisible(false)
+  }
+
+  const handleGradesPress = () => {
+    navigation.navigate('grades');
   }
 
   const resetTemplateForm = () => {
     setTemplateTags(["", "", ""]);
     setTemplateCriteria(["", "", ""]);
   }
+
+  const startRotation = () => {
+    rotationValue.setValue(0); 
+    Animated.timing(rotationValue, {
+      toValue: 0.5, 
+      duration: 200, 
+      easing: Easing.linear, 
+      useNativeDriver: true, 
+    }).start(() => {
+    });
+  };
+
+  const rotateInterpolation = rotationValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'], 
+  });
+
+  const accentTextStyle = 'text-secondary font-pextrabold text-xl leading-loose'
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-14">
@@ -153,113 +134,89 @@ export default function App() {
 
 
         {/* Add Button */}
-        <TouchableOpacity
-          className="bg-primary rounded-lg px-6 py-4 mx-4 mb-2 elevation-md"
-          onPress={() => setChoiceModalVisible(true)}
-        >
-          <Text className="text-xl font-bold text-background text-center">
-            GRADE A NEW ITEM
-          </Text>
-        </TouchableOpacity>
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginVertical: screenHeight * 0.05,
+        }}>
+          <View
+            className="bg-primary rounded-3xl center"
+            style={{
+              width: squareSize * 1.2,
+              height: squareSize * 1.2,
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'relative',
+            }}>
+            <View
+              className="bg-background rounded-2xl center elevation-lg"
+              style={{
+                width: squareSize * 1.1,
+                height: squareSize * 1.1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'relative',
+              }}>
+              <TouchableOpacity
+                className="bg-primaryLight rounded-xl center elevation-md"
+                style={{
+                  width: squareSize,
+                  height: squareSize,
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  position: 'relative',
 
-        {/* Random Items */}
-        <View className="bg-secondaryLight my-3 ">
-          <View className="bg-secondary flex-row items-center justify-between p-3 elevation ">
-            <View style={{ flex: 1, marginHorizontal: 8 }}>
-              <Text
-                className="text-neutral text-2xl font-psemibold"
-                style={{ flexWrap: 'wrap' }}
+                }}
+                onPress={() => {
+                  startRotation(); 
+                  setTimeout(() => {
+                    setChoiceModalVisible(true);
+                  }, 100);
+                }}
               >
-                Random Graded Items
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              onPress={handleGradesPress}
-              className="flex-row justify-between border bg-neutral items-center rounded-md mx-3"
-              style={{ flexShrink: 0 }}
-            >
-              <View className="flex-row items-center p-3 mr-1 ">
-                <Text className="text-accent text-base font-pmedium my-1">See more</Text>
-                <Image
-                  source={icons.rightArrow}
-                  resizeMode="contain"
+                <Animated.Image
+                  source={icons.add}
                   style={{
-                    tintColor: '#FFD700',
-                    marginLeft: 4,
-                    width: 18,
-                    height: 18,
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: [
+                      { translateX: -(squareSize * 0.2) },
+                      { translateY: -(squareSize * 0.2) },
+                      { rotate: rotateInterpolation }, 
+                    ],
+                    width: squareSize * 0.4,
+                    height: squareSize * 0.4,
+                    tintColor: '#FFF3E0',
                   }}
                 />
-              </View>
-            </TouchableOpacity>
-          </View>
-          <FlatList
-            data={randomItems}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            numColumns={2}
-            scrollEnabled={false}
-          />
-        </View>
 
-        {/* Random Stats */}
-        <View className="bg-secondaryLight pb-3 my-3">
-          <View className="bg-secondary flex-row items-center justify-between p-3 elevation">
-            <Text
-              className="text-neutral text-2xl font-psemibold ml-3 pt-3 px-3 pb-2 mr-1"
-              style={{ flexWrap: 'wrap' }}
-            >
-              Random Stats
-            </Text>
-            <TouchableOpacity
-              onPress={handleStatsPress}
-              className="flex-row justify-between border bg-neutral items-center rounded-md mx-3"
-              style={{ flexShrink: 0 }}
-            >
-              <View className="flex-row items-center p-3 mr-1 ">
-                <Text className="text-accent text-base font-pmedium my-1">See more</Text>
-                <Image
-                  source={icons.rightArrow}
-                  resizeMode="contain"
+                <Text
+                  className="text-xl font-bold text-background text-center mt-2"
                   style={{
-                    tintColor: '#FFD700',
-                    marginLeft: 4,
-                    width: 18,
-                    height: 18,
+                    position: 'absolute',
+                    bottom: 20,
+                    width: '100%',
                   }}
-                />
-              </View>
-            </TouchableOpacity>
-          </View>
-          <View className="max-h-52 flex-row mt-3 border-b border-neutral mx-1">
-            <View className="flex-1 border-x border-neutral">
-              <Text className="bg-backgroundAnti border-y border-neutral text-center font-pbold p-1 pt-2 ">
-                Tags
-              </Text>
-              <FlatList
-                data={tagsCounts}
-                renderItem={renderStats}
-                keyExtractor={(item) => item.name}
-                showsVerticalScrollIndicator={false}
-                scrollEnabled={false}
-              />
-            </View>
-            <View className="flex-1 border-r border-neutral">
-              <Text className="bg-backgroundAnti border-y border-neutral text-center font-pbold p-1 pt-2">
-                Criterias
-              </Text>
-              <FlatList
-                data={criteriasCounts}
-                renderItem={renderStats}
-                keyExtractor={(item) => item.name}
-                showsVerticalScrollIndicator={false}
-                scrollEnabled={false}
-              />
+                >
+                  GRADE A NEW ITEM
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
+
+        {/* Descritpion text*/}
+        <View className="mx-3 justify-center">
+          <Text className='text-neutral font-psemibold text-xl '>
+            This app lets you <Text className={`${accentTextStyle}`}>grade anything you want! </Text>
+            Use <Text className={`${accentTextStyle}`}>TAGS</Text> to organize and label your items, and
+            <Text className={`${accentTextStyle}`}> CRITERIA</Text> to rate and evaluate them in a way that makes sense to you.
+            It’s <Text className={`${accentTextStyle}`}>YOUR WORLD</Text> — categorize it, rate it, and see what stands out!
+          </Text>
+        </View>
+
 
         {/* Choice Modal */}
         <Modal animationType="slide" transparent={false} visible={choiceModalVisible}>

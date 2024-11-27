@@ -10,6 +10,12 @@ export const initializeDatabase = async () => {
   try {
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
+
+      CREATE TABLE IF NOT EXISTS app_state (
+        key TEXT PRIMARY KEY,
+        value TEXT
+      );
+
       CREATE TABLE IF NOT EXISTS items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT
@@ -48,6 +54,49 @@ export const initializeDatabase = async () => {
     console.error("Error initializing database:", error);
   }
 };
+
+export const initializeApp = async () => {
+  try {
+    if (!db) {
+      await initializeDatabase();
+    }
+
+    const result = await db.getFirstAsync(`SELECT * FROM app_state WHERE key = ?`, ["initialized"]);
+
+    if (!result) {
+      await createDefaultTemplates();
+
+      await db.runAsync(`INSERT INTO app_state (key, value) VALUES (?, ?)`, ["initialized", "true"]);
+    }
+  } catch (error) {
+    console.error("Error initializing app:", error);
+  }
+};
+
+const createDefaultTemplates = async () => {
+  try {
+    const pizzaTemplate = await db.getFirstAsync(`SELECT * FROM templates WHERE name = ?`, ["Pizza"]);
+    if (!pizzaTemplate) {
+      const pizzaTemplateId = await createTemplate("Pizza", ["Italian", "Fast Food", "Pizza"], ["Taste", "Flavor Blend", "Firmness"]);
+      console.log("Pizza template created with ID:", pizzaTemplateId);
+    }
+
+    const movieTemplate = await db.getFirstAsync(`SELECT * FROM templates WHERE name = ?`, ["Movie"]);
+    if (!movieTemplate) {
+      const movieTemplateId = await createTemplate("Movie", ["Movie"], ["Length", "Enjoyment", "Soundtrack"]);
+      console.log("Movie template created with ID:", movieTemplateId);
+    }
+
+    const clothesTemplate = await db.getFirstAsync(`SELECT * FROM templates WHERE name = ?`, ["Clothes"]);
+    if (!clothesTemplate) {
+      const clothesTemplateId = await createTemplate("Clothes", ["Clothing"], ["Comfort", "Quality", "Price"]);
+      console.log("Clothes template created with ID:", clothesTemplateId);
+    }
+  } catch (error) {
+    console.error("Error creating default templates:", error);
+  }
+};
+
 
 export const addItem = async (title, tags, criteriaRatings) => {
   try {

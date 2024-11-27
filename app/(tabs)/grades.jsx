@@ -7,7 +7,8 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  ScrollView
+  ScrollView,
+  Dimensions
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import ItemInfoCard from '../../components/ItemInfoCard';
@@ -35,6 +36,9 @@ const Grades = () => {
   const [ratings, setRatings] = useState(['']);
 
   const searchInputRef = useRef(null);
+
+  const screenWidth = Dimensions.get('window').width;
+  const screenHeight = Dimensions.get('window').height
 
   const loadItems = async () => {
     const itemsFromDb = await getItems(0);
@@ -81,7 +85,7 @@ const Grades = () => {
         const titleMatch = item.title && item.title.toLowerCase().includes(query);
         const tagsMatch =
           item.tags &&
-          item.tags.some((tag) => typeof tag === 'string' && tag.toLowerCase().includes(query));
+          item.tags.some((tag) => tag.name && tag.name.toLowerCase().includes(query));
         const criteriaRatingsMatch =
           item.criteriaRatings &&
           item.criteriaRatings.some(
@@ -201,9 +205,22 @@ const Grades = () => {
   return (
     <SafeAreaView className="flex-1  bg-background px-3 pt-14">
       <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
+
       {/* SearchBar */}
       <View>
-        <View className="my-6" style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View className="mt-6 mb-1" style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => displayTags()}
+            className="bg-primaryLight rounded-lg px-3 py-3 border border-neutral mr-3"
+          >
+            <Text className="text-xl font-pbold text-background">Filters</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => displayOrderBy()}
+            className="bg-primaryLight rounded-lg px-3 py-3 border border-neutral mr-3"
+          >
+            <Text className="text-xl font-pbold text-background">Order By</Text>
+          </TouchableOpacity>
           <TextInput
             ref={searchInputRef}
             placeholder="Search..."
@@ -234,25 +251,9 @@ const Grades = () => {
         </View>
       </View>
 
-      {/* Order and Filter Buttons */}
-      <View className="flex-row justify-between mb-4">
-        <TouchableOpacity
-          onPress={() => displayTags()}
-          className="bg-primary rounded-lg px-6 py-4 border border-neutral"
-        >
-          <Text className="text-xl font-pbold text-secondaryLight">Filters</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => displayOrderBy()}
-          className="bg-primary rounded-lg px-6 py-4 border border-neutral"
-        >
-          <Text className="text-xl font-pbold text-secondaryLight">Order By</Text>
-        </TouchableOpacity>
-      </View>
-
       {/* Filter By */}
       {isTagsVisible && (
-        <View className="flex-wrap flex-row bg-primaryLight rounded-md p-4 mb-4">
+        <View className="flex-wrap flex-row bg-primaryLight border border-neutral rounded-md p-4">
           <View className="flex-row flex-wrap justify-center items-center">
             {allTags.map((tag) => (
               <TouchableOpacity
@@ -275,7 +276,7 @@ const Grades = () => {
 
       {/* Order By */}
       {isOrderByVisible && (
-        <View className="bg-primaryLight rounded-md p-4 mb-4">
+        <View className="bg-primaryLight rounded-md border border-neutral p-4">
           <View className="flex-row flex-wrap justify-center items-center">
             <TouchableOpacity
               onPress={() => setOrderBy('ratingAsc')}
@@ -306,10 +307,12 @@ const Grades = () => {
       )}
 
       {/* List of Items */}
-      <ScrollView>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+      >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <FlatList
-            style={{ width: '48%' }}
+            style={{ width: '50%' }}
             data={leftColumnItems}
             renderItem={renderItem}
             keyExtractor={(item, index) => 'left-' + index.toString()}
@@ -317,7 +320,7 @@ const Grades = () => {
             scrollEnabled={false}
           />
           <FlatList
-            style={{ width: '48%' }}
+            style={{ width: '50%' }}
             data={rightColumnItems}
             renderItem={renderItem}
             keyExtractor={(item, index) => 'right-' + index.toString()}

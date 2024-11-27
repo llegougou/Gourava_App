@@ -31,7 +31,7 @@ const Stats = () => {
   );
 
   const renderItem = ({ item, index }) => {
-    const backgroundColor = index % 2 === 0 ? 'bg-secondaryLight' : 'bg-secondary'
+    const backgroundColor = index % 2 === 0 ? 'bg-backgroundAnti' : 'bg-background'
 
     return (
       <View className={`flex-row justify-between px-4 pb-2 pt-3 ${backgroundColor}`}>
@@ -68,9 +68,10 @@ const Stats = () => {
           false;
 
     return (
-      <View className="flex-row justify-center">
+      <View className="flex-row justify-center bg-background border-t border-backgroundAnti">
         <TouchableOpacity
           onPress={() => isExpanded ? handleSeeLess(section) : handleSeeMore(section)}
+          className="py-2"
         >
           <Image
             source={icons.navArrow}
@@ -95,10 +96,10 @@ const Stats = () => {
 
         {/* TAGS Section */}
         <View style={{ marginVertical: '2%' }}>
-          <View className="bg-backgroundAnti py-4 elevation-md">
-            <Text className="text-neutral text-center text-xl font-pextrabold">Tags Usage</Text>
+          <View className="bg-secondary py-4 elevation-md">
+            <Text className="text-neutral text-center text-xl font-pextrabold">TAGS</Text>
           </View>
-          <View className="bg-secondaryLight">
+          <View className="bg-backgroundAnti border-b border-backgroundAnti">
             <FlatList
               data={tagCounts.slice(0, visibleTagsCount)}
               renderItem={renderItem}
@@ -111,10 +112,10 @@ const Stats = () => {
 
         {/* CRITERIA Section */}
         <View style={{ marginVertical: '2%' }}>
-          <View className="bg-backgroundAnti py-4 elevation-md">
-            <Text className="text-neutral text-center text-xl font-pextrabold">Criteria Usage</Text>
+          <View className="bg-secondary py-4 elevation-md">
+            <Text className="text-neutral text-center text-xl font-pextrabold">CRITERIA</Text>
           </View>
-          <View className="bg-secondaryLight">
+          <View className="bg-background border-b border-backgroundAnti">
             <FlatList
               data={criteriasCounts.slice(0, visibleCriteriasCount)}
               renderItem={renderItem}

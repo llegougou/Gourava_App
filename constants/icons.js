@@ -9,6 +9,7 @@ import halfStar from "../assets/icons/halfStar.png";
 import navArrow from "../assets/icons/downNavArrow.png";
 import template from "../assets/icons/template.png"
 import rightArrow from "../assets/icons/right-arrow.png"
+import add from "../assets/icons/add.png"
 
 export default {
   home,
@@ -21,5 +22,6 @@ export default {
   halfStar,
   navArrow,
   template,
-  rightArrow
+  rightArrow,
+  add
 };
