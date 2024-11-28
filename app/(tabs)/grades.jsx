@@ -144,8 +144,6 @@ const Grades = () => {
         title={item.title}
         tags={item.tags}
         criteriaRatings={item.criteriaRatings}
-        showButtons={true}
-        border={true}
         onDelete={() => handleDeleteItem(item.id)}
         onUpdate={() => handleUpdateItem(item)}
       />

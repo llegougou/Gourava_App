@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, Alert, StyleSheet, LayoutChangeEvent } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, Alert, StyleSheet, LayoutChangeEvent, Animated } from 'react-native';
 
 import { icons } from '@/constants';
 
@@ -16,22 +16,29 @@ interface ItemInfoCardProps {
   title: string;
   tags: Tag[];
   criteriaRatings: Criteria[];
-  showButtons?: boolean;
-  border:boolean;
   onDelete: () => void;
   onUpdate: () => void;
 }
 
-const ItemInfoCard = ({ title, tags, criteriaRatings, showButtons, border, onDelete, onUpdate }: ItemInfoCardProps) => {
-  const [titleFontSize, setTitleFontSize] = useState(20);
+const ItemInfoCard = ({ title, tags, criteriaRatings, onDelete, onUpdate }: ItemInfoCardProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [rotationAnim] = useState(new Animated.Value(0));
+  const CRITERIA_MAX_LENGTH = 8;
 
-  const handleLayout = (event: LayoutChangeEvent) => {
-    const { width } = event.nativeEvent.layout;
-    const maxFontSize = 20;
-    const minFontSize = 14;
-    const idealFontSize = Math.max(minFontSize, Math.min(maxFontSize, width / (title.length * 0.5)));
-    setTitleFontSize(idealFontSize);
+  const toggleExpansion = () => {
+    setIsExpanded((prev) => !prev);
+
+    Animated.timing(rotationAnim, {
+      toValue: isExpanded ? 0 : 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
   };
+
+  const rotation = rotationAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
 
   const handleDelete = () => {
     Alert.alert(
@@ -71,31 +78,22 @@ const ItemInfoCard = ({ title, tags, criteriaRatings, showButtons, border, onDel
     return <View style={styles.starsContainer}>{stars}</View>;
   };
 
-  const isSingleWord = title.trim().split(' ').length === 1;
-
-  const cardStyles = [
-    styles.card,
-    border
-      ? styles.borderStyle
-      : styles.elevationStyle
-  ];
+  const renderCompactedStars = (rating: number) => {
+    return (
+      <View style={styles.starsContainer}>
+        <Text style={styles.criteriaText}>
+          {rating} <Image source={icons.star} style={[styles.star, styles.yellowStar]} />
+        </Text>
+      </View>
+    );
+  };
 
   return (
-    <View style={cardStyles}>
-      <View style={styles.header} onLayout={isSingleWord ? handleLayout : undefined}>
-        <Text style={[styles.title, { fontSize: isSingleWord ? titleFontSize : 16 }]} numberOfLines={isSingleWord ? 1 : undefined} adjustsFontSizeToFit>
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.title}>
           {title}
         </Text>
-        {showButtons && (
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={onUpdate} style={styles.updateButton}>
-              <Image source={icons.update} style={styles.icon} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-              <Image source={icons.deleteIcon} style={styles.icon} />
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
 
       <View style={styles.tagsContainer}>
@@ -113,36 +111,60 @@ const ItemInfoCard = ({ title, tags, criteriaRatings, showButtons, border, onDel
       </View>
 
       <View>
-        {criteriaRatings.map((criteria, index) => (
-          <View key={index} style={styles.criteriaRow}>
-            {criteria.name && criteria.name.trim() ? (
-              <>
-                <Text style={styles.criteriaText}>{criteria.name}</Text>
-                {typeof criteria.rating === 'number' && criteria.rating >= 0 && criteria.rating <= 5 && renderStars(criteria.rating)}
-              </>
-            ) : null}
-          </View>
-        ))}
+        {criteriaRatings.map((criteria, index) => {
+          const isCriteriaTooLong = criteria.name.length > CRITERIA_MAX_LENGTH;
+
+          return (
+            <View key={index} style={styles.criteriaRow}>
+              {criteria.name && criteria.name.trim() ? (
+                <>
+                  <Text
+                    style={[styles.criteriaText, isCriteriaTooLong ? { width: '100%' } : {}]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {criteria.name}
+                  </Text>
+                  {isCriteriaTooLong
+                    ? renderCompactedStars(criteria.rating)
+                    : renderStars(criteria.rating)}
+                </>
+              ) : null}
+            </View>
+          );
+        })}
       </View>
+
+      <TouchableOpacity style={styles.bottomRow} onPress={toggleExpansion}>
+        <View style={styles.buttonContainer}>
+          {isExpanded && (
+            <>
+              <TouchableOpacity onPress={onUpdate} style={styles.updateButton}>
+                <Image source={icons.update} style={styles.icon} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
+                <Image source={icons.deleteIcon} style={styles.icon} />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+        <Animated.Image
+          source={icons.navArrow}
+          style={[styles.navArrow, { transform: [{ rotate: rotation }] }]} />
+      </TouchableOpacity>
     </View>
   );
 };
 
+
 const styles = StyleSheet.create({
   card: {
-    padding: 16,
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
     borderRadius: 8,
     backgroundColor: '#DCC8AA',
     marginBottom: 4,
-  },
-  elevationStyle: {
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  borderStyle: {
     borderColor: '#089889',
     borderWidth: 1,
   },
@@ -155,9 +177,25 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     flex: 1,
+    color: '#424242',
+    fontSize: 20
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8
   },
   buttonContainer: {
     flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flex: 1,
+  },
+  navArrow: {
+    width: 20,
+    height: 20,
+    tintColor: '#424242',
+    margin: 8
   },
   updateButton: {
     width: 35,
@@ -175,7 +213,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF7043',
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 4,
+    marginLeft: 4,
   },
   icon: {
     width: 20,
@@ -197,20 +235,21 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 12,
-    color: '#000',
+    color: '#424242',
   },
   criteriaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 4,
-    overflow:'hidden'
+    overflow: 'hidden'
   },
   criteriaText: {
     fontSize: 14,
     fontWeight: '500',
     marginRight: 6,
     flexShrink: 1,
+    color: '#424242',
   },
   starsContainer: {
     flexDirection: 'row',
@@ -220,6 +259,12 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     marginRight: 2,
+  },
+  compactRating: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#424242',
+    marginLeft: 6,
   },
   yellowStar: {
     tintColor: '#FF7043',

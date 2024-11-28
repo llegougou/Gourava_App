@@ -39,8 +39,12 @@ export default function App() {
   const rotationValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    initializeApp();
-    loadTemplates();
+    const initializeAndLoad = async () => {
+      await initializeApp();
+      await loadTemplates(); 
+    };
+  
+    initializeAndLoad();
   }, []);
 
   useFocusEffect(
