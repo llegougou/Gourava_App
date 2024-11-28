@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, Alert, KeyboardAvoidingView, ScrollView, Platform, Image } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+
+import { icons } from "../constants";
 
 interface Tag {
     name: string;
@@ -10,21 +13,32 @@ interface Criterion {
     rating: number;
 }
 
+
+interface Template {
+    name: string;
+    tags: string[];
+    criteria: string[];
+}
+
 interface FormModalProps {
     typeOfModal: string;
     title: string;
     tags: Tag[];
     criteria: Criterion[];
+    templates?: Template[];
+    templateChoice: boolean;
     isVisible: boolean;
     onCancel: () => void;
     onSave: (title: string, tags: string[], criteria: string[], criteriaratings: string[]) => void;
 }
 
-const ItemFormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel, onSave }: FormModalProps) => {
+const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, criteria, isVisible, onCancel, onSave }: FormModalProps) => {
     const [newTitle, setTitle] = useState(title);
     const [newTags, setTags] = useState(tags.map(tag => tag.name));
     const [newCriteria, setCriteria] = useState(criteria.map(criterion => criterion.name));
     const [ratings, setRatings] = useState(criteria.map(criterion => criterion.rating.toString()));
+    const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+    const [selectedTemplateName, setSelectedTemplateName] = useState('')
 
     useEffect(() => {
         setTitle(title);
@@ -36,7 +50,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel
     let modalTitle = '';
     switch (typeOfModal) {
         case 'customCreate':
-            modalTitle = 'New Custom Item';
+            modalTitle = 'Add a new Item';
             break;
         case 'update':
             modalTitle = 'Update Item';
@@ -46,6 +60,18 @@ const ItemFormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel
             break;
 
     }
+
+    const handleTemplateSelect = (templateTitle: string) => {
+        const template = templates?.find(t => t.name === templateTitle);
+        if (template) {
+            setSelectedTemplate(template);
+            setTitle(template.name);
+            setTags(template.tags);
+            setCriteria(template.criteria);
+            setSelectedTemplateName(template.name)
+        }
+    };
+
 
     const handleSave = () => {
         if (validateForm()) {
@@ -91,10 +117,12 @@ const ItemFormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel
     };
 
     const resetForm = () => {
+        setSelectedTemplate(null);
         setTitle("");
         setTags(["", "", ""]);
         setCriteria(["", "", ""]);
         setRatings(["", "", ""]);
+        setSelectedTemplateName('');
     };
 
     return (
@@ -108,6 +136,33 @@ const ItemFormModal = ({ typeOfModal, title, tags, criteria, isVisible, onCancel
                     showsVerticalScrollIndicator={false}
                 >
                     <Text style={styles.modalTitle}>{modalTitle}</Text>
+
+                    {templateChoice && templates && templates.length > 0 && (
+                        <>
+                            <Text style={styles.catTitle}>Use an optional template</Text>
+                            <View style={styles.pickerRow}>
+                                <View style={styles.pickerWrapper}>
+                                    <Picker
+                                        selectedValue={selectedTemplate?.name || 'noTemplate'}
+                                        onValueChange={(value) => handleTemplateSelect(value)}
+                                        style={[styles.picker, { color: selectedTemplateName ? '#FF7043' : '#424242' }]} 
+                                    >
+                                        <Picker.Item label="Select a Template" value="noTemplate" />
+                                        {templates.map(template => (
+                                            <Picker.Item key={template.name} label={template.name} value={template.name} />
+                                        ))}
+                                    </Picker>
+                                </View>
+
+                                {selectedTemplateName !== '' && (
+                                    <TouchableOpacity style={styles.erase} onPress={resetForm}>
+                                        <Image source={icons.erase} style={styles.eraseIcon} />
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        </>
+                    )}
+
                     <Text style={styles.catTitle}>Title</Text>
                     <TextInput
                         placeholder="Title"
@@ -270,6 +325,41 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 16,
     },
+    pickerWrapper: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#424242',
+        borderRadius: 8,
+        backgroundColor: '#FFF3E0',
+        height: 48,
+        justifyContent: 'center', 
+    },
+    picker: {
+        fontSize: 16,
+        paddingHorizontal: 12,
+        height: 48,
+        justifyContent: 'center', 
+    },
+    pickerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        alignContent:'center',
+        marginBottom: 16,
+        marginHorizontal: 20,
+    },
+    erase: {
+        padding: 8, 
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 48,
+    },
+    eraseIcon: {
+        width: 30,
+        height: 30,
+        resizeMode: 'contain',
+        tintColor:'#424242'
+    },
     catTitle: {
         marginBottom: 8,
         marginHorizontal: 20,
@@ -324,12 +414,12 @@ const styles = StyleSheet.create({
     cancelButtonText: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#00796B',
+        color: '#424242',
     },
     saveButtonText: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#FF8B66',
+        color: '#DCC8AA',
     },
 });
 

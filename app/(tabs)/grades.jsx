@@ -335,6 +335,7 @@ const Grades = () => {
         tags={tags.map(tag => ({ name: tag }))}
         criteria={criteria.map((name, index) => ({ name, rating: ratings[index] ? parseFloat(ratings[index]) : 0 }))}
         isVisible={modalVisible}
+        templateChoice={false}
         onCancel={() => setModalVisible(false)}
         onSave={handleSave}
       />

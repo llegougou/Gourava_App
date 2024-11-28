@@ -20,16 +20,12 @@ import { useNavigation } from "@react-navigation/native";
 import { icons } from '../../constants';
 
 export default function App() {
-  const [templateModalVisible, setTemplateModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
-  const [choiceModalVisible, setChoiceModalVisible] = useState(false);
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState(["", "", ""]);
   const [criteria, setCriteria] = useState(["", "", ""]);
   const [ratings, setRatings] = useState(["", "", ""]);
   const [templates, setTemplates] = useState([]);
-  const [templateTags, setTemplateTags] = useState(["", "", ""]);
-  const [templateCriteria, setTemplateCriteria] = useState(["", "", ""]);
 
   const navigation = useNavigation();
 
@@ -85,29 +81,6 @@ export default function App() {
     }
   };
 
-  const handleTemplateSelect = async (templateId) => {
-    const selectedTemplate = templates.find((template) => template.id === templateId);
-    if (selectedTemplate) {
-      setTemplateTags(selectedTemplate.tags);
-      setTemplateCriteria(selectedTemplate.criteria);
-    }
-    setTemplateModalVisible(true);
-  };
-
-  const handleTemplatesPress = () => {
-    navigation.navigate('templates');
-    setChoiceModalVisible(false)
-  }
-
-  const handleGradesPress = () => {
-    navigation.navigate('grades');
-  }
-
-  const resetTemplateForm = () => {
-    setTemplateTags(["", "", ""]);
-    setTemplateCriteria(["", "", ""]);
-  }
-
   const startRotation = () => {
     rotationValue.setValue(0);
     Animated.timing(rotationValue, {
@@ -127,7 +100,7 @@ export default function App() {
   const onPressAdd = () => {
     startRotation();
     setTimeout(() => {
-      setChoiceModalVisible(true);
+      setCustomModalVisible(true);
     }, 100);
   };
 
@@ -224,83 +197,19 @@ export default function App() {
           </Text>
         </View>
 
-
-        {/* Choice Modal */}
-        <Modal animationType="slide" transparent={false} visible={choiceModalVisible}>
-          <View className="flex-1 bg-backgroundAnti p-4">
-
-            <Text className="text-primary text-xl font-pextrabold mt-10">Create a custom item...</Text>
-            {/* Custom Template Creation Section */}
-            <TouchableOpacity
-              className="m-3 px-4 pt-4 pb-3 elevation-md bg-background rounded-md mb-6"
-              onPress={() => { setCustomModalVisible(true) }}
-            >
-              <Text className="text-neutral text-lg font-pbold text-center">Create Custom Item</Text>
-            </TouchableOpacity>
-
-            <Text className="text-primary text-xl font-pextrabold">... or choose an existing template</Text>
-            {/* Templates Section */}
-            {templates.length > 0 ? (
-              <FlatList
-                data={templates}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                columnWrapperStyle={{ justifyContent: 'space-between' }}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    className="flex-1 m-3 px-4 pt-4 pb-3 elevation-md bg-background rounded-md"
-                    onPress={() => handleTemplateSelect(item.id)}
-                  >
-                    <Text className="font-psemibold text-lg text-center text-neutral">{item.name}</Text>
-                  </TouchableOpacity>
-                )}
-              />
-            ) : (
-              <View>
-                <Text className="text-secondary text-lg font-pbold text-center mt-4">No Templates Found</Text>
-                <TouchableOpacity
-                  className="m-3 px-4 pt-4 pb-3 elevation-md bg-background rounded-md mb-6"
-                  onPress={handleTemplatesPress}
-                >
-                  <Text className="text-neutral text-lg font-pbold text-center">Create a template</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {/* Close Modal Button */}
-            <TouchableOpacity
-              className="mt-4 bg-secondaryLight px-4 py-4 rounded-md items-center"
-              onPress={() => setChoiceModalVisible(false)}
-            >
-              <Text className="text-primary text-xl font-pbold">Close</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-
         {/* Custom Adding Modal */}
         <ItemFormModal
           typeOfModal="customCreate"
           title={title}
           tags={tags.map(tag => ({ name: tag }))}
           criteria={criteria.map((name, index) => ({ name, rating: ratings[index] }))}
+          templates={templates}
+          templateChoice={true}
           isVisible={customModalVisible}
           onCancel={() => setCustomModalVisible(false)}
           onSave={handleSave}
         />
 
-        {/* Template Adding Modal */}
-        <ItemFormModal
-          typeOfModal="fromTemplateCreate"
-          title={title}
-          tags={templateTags.map((tag) => ({ name: tag }))}
-          criteria={templateCriteria.map((name, index) => ({
-            name,
-            rating: '',
-          }))}
-          isVisible={templateModalVisible}
-          onCancel={() => { setTemplateModalVisible(false); resetTemplateForm(); }}
-          onSave={handleSave}
-        />
       </ScrollView>
     </SafeAreaView>
   );
