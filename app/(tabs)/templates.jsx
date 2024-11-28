@@ -10,7 +10,6 @@ import TemplateFormModal from '../../components/TemplateFormModal';
 const Templates = () => {
     const [templates, setTemplates] = useState([]);
     const [expandedTemplateId, setExpandedTemplateId] = useState(null);
-
     const [modalCreationVisible, setModalCreationVisible] = useState(false);
     const [modalUpdateVisible, setModalUpdateVisible] = useState(false);
     const [title, setTitle] = useState("");
