@@ -43,22 +43,19 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     flagButton: {
-        backgroundColor: '#DCC8AA',
         borderRadius: 8,
-        padding: 3,
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
         marginRight: 15,
         marginTop: 15,
+        paddingVertical:3,
+        paddingHorizontal:5,
+        borderWidth:1.5,
+        borderColor:'#424242',
     },
     flagIcon: {
-        width: 0.06 * windowHeight,
-        height: 0.09 * windowWidth,
+        width: 0.05 * windowHeight,
+        height: 0.08 * windowWidth,
         aspectRatio: 'auto',
-        resizeMode: 'contain',
+        resizeMode: 'cover',
     }
 });
 
