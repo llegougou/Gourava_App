@@ -1,5 +1,6 @@
 import { SplashScreen, Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
+import { LanguageProvider } from '../components/LanguageContext';
 import { useEffect } from 'react';
 import "../global.css";
 
@@ -31,9 +32,11 @@ const RootLayout = () => {
   }
 
   return (
-    <Stack initialRouteName="(tabs)/home">
-      <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-    </Stack>
+    <LanguageProvider>
+      <Stack initialRouteName="(tabs)/home">
+        <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+      </Stack>
+    </LanguageProvider>
   )
 }
 

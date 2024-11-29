@@ -10,6 +10,8 @@ import navArrow from "../assets/icons/downNavArrow.png";
 import template from "../assets/icons/template.png"
 import rightArrow from "../assets/icons/right-arrow.png"
 import add from "../assets/icons/add.png"
+import france from "../assets/icons/france.png"
+import uk from "../assets/icons/uk.png"
 
 export default {
   home,
@@ -23,5 +25,7 @@ export default {
   navArrow,
   template,
   rightArrow,
-  add
+  add,
+  france, 
+  uk
 };

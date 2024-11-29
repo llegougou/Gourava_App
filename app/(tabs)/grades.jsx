@@ -7,13 +7,14 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  ScrollView,
-  Dimensions
+  ScrollView
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import ItemInfoCard from '../../components/ItemInfoCard';
 import { icons } from '../../constants';
 import { useFocusEffect } from '@react-navigation/native';
+
+import { useLanguage } from '../../components/LanguageContext';
 
 import { getItems, deleteItem, updateItem } from "../../utils/database";
 import ItemFormModal from '../../components/ItemFormModal';
@@ -37,8 +38,7 @@ const Grades = () => {
 
   const searchInputRef = useRef(null);
 
-  const screenWidth = Dimensions.get('window').width;
-  const screenHeight = Dimensions.get('window').height
+  const { languageData } = useLanguage();
 
   const loadItems = async () => {
     const itemsFromDb = await getItems(0);
@@ -211,17 +211,17 @@ const Grades = () => {
             onPress={() => displayTags()}
             className="bg-primaryLight rounded-lg px-3 py-3 border border-neutral mr-3"
           >
-            <Text className="text-xl font-pbold text-background">Filters</Text>
+            <Text className="text-xl font-pbold text-background">{languageData.screens.grades.text.filtersButton}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => displayOrderBy()}
             className="bg-primaryLight rounded-lg px-3 py-3 border border-neutral mr-3"
           >
-            <Text className="text-xl font-pbold text-background">Order By</Text>
+            <Text className="text-xl font-pbold text-background">{languageData.screens.grades.text.orderByButton}</Text>
           </TouchableOpacity>
           <TextInput
             ref={searchInputRef}
-            placeholder="Search..."
+            placeholder={languageData.screens.grades.text.searchPlaceholder}
             className="border-2 border-neutral rounded-full px-4 py-2 text-neutral flex-1 self-center"
             value={searchQuery}
             onChangeText={(text) => setSearchQuery(text)}
@@ -266,7 +266,7 @@ const Grades = () => {
               onPress={() => setSelectedTags([])}
               className="border border-neutral p-3 rounded-md mb-2 mr-2 bg-accent"
             >
-              <Text className="text-neutral">Reset All Filters</Text>
+              <Text className="text-neutral">{languageData.screens.grades.text.resetFiltersButton}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -280,25 +280,25 @@ const Grades = () => {
               onPress={() => setOrderBy('ratingAsc')}
               className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'ratingAsc' ? 'bg-secondary' : 'bg-background'}`}
             >
-              <Text className={`${orderBy === 'ratingAsc' ? 'text-background' : 'text-neutral'}`}>Rating (Ascending)</Text>
+              <Text className={`${orderBy === 'ratingAsc' ? 'text-background' : 'text-neutral'}`}>{languageData.screens.grades.text.ratingAsc}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setOrderBy('ratingDesc')}
               className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'ratingDesc' ? 'bg-secondary' : 'bg-background'}`}
             >
-              <Text className={`${orderBy === 'ratingDesc' ? 'text-background' : 'text-neutral'}`}>Rating (Descending)</Text>
+              <Text className={`${orderBy === 'ratingDesc' ? 'text-background' : 'text-neutral'}`}>{languageData.screens.grades.text.ratingDesc}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setOrderBy('alphabetical')}
               className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'alphabetical' ? 'bg-secondary' : 'bg-background'}`}
             >
-              <Text className={`${orderBy === 'alphabetical' ? 'text-background' : 'text-neutral'}`}>Alphabetical</Text>
+              <Text className={`${orderBy === 'alphabetical' ? 'text-background' : 'text-neutral'}`}>{languageData.screens.grades.text.alphabetical}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setOrderBy('random')}
               className={`border p-3 rounded-md mb-2 mr-2 ${orderBy === 'random' ? 'bg-secondary' : 'bg-background'}`}
             >
-              <Text className={`${orderBy === 'random' ? 'text-background' : 'text-neutral'}`}>Random</Text>
+              <Text className={`${orderBy === 'random' ? 'text-background' : 'text-neutral'}`}>{languageData.screens.grades.text.random}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -330,7 +330,7 @@ const Grades = () => {
 
       {/* Modal */}
       <ItemFormModal
-        typeOfModal="create"
+        typeOfModal="update"
         title={title}
         tags={tags.map(tag => ({ name: tag }))}
         criteria={criteria.map((name, index) => ({ name, rating: ratings[index] ? parseFloat(ratings[index]) : 0 }))}

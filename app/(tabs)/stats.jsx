@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image } from 'react-native';
 import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { useLanguage } from '../../components/LanguageContext';
 import { icons } from '../../constants';
 
 import { getTagsUsageCount, getCriteriaUsageCount } from '../../utils/database';
@@ -16,6 +16,8 @@ const Stats = () => {
 
   const [isExpandedTags, setIsExpandedTags] = useState(false);
   const [isExpandedCriterias, setIsExpandedCriterias] = useState(false);
+
+  const { languageData } = useLanguage();
 
   const loadCounts = async () => {
     const tags = await getTagsUsageCount(0);
@@ -92,12 +94,12 @@ const Stats = () => {
       <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
       <ScrollView>
         {/* Title */}
-        <Text className='text-primary text-center text-4xl font-pextrabold mt-11 mb-5'>USAGE  DASHBOARD</Text>
+        <Text className='text-primary text-center text-4xl font-pextrabold mt-11 mb-5'>{languageData.screens.stats.text.usageDashboard}</Text>
 
         {/* TAGS Section */}
         <View style={{ marginVertical: '2%' }}>
           <View className="bg-secondary py-4 elevation-md">
-            <Text className="text-neutral text-center text-xl font-pextrabold">TAGS</Text>
+            <Text className="text-neutral text-center text-xl font-pextrabold">{languageData.common.tag.variations[3]}</Text>
           </View>
           <View className="bg-backgroundAnti border-b border-backgroundAnti">
             <FlatList
@@ -113,7 +115,7 @@ const Stats = () => {
         {/* CRITERIA Section */}
         <View style={{ marginVertical: '2%' }}>
           <View className="bg-secondary py-4 elevation-md">
-            <Text className="text-neutral text-center text-xl font-pextrabold">CRITERIA</Text>
+            <Text className="text-neutral text-center text-xl font-pextrabold">{languageData.common.criteria.variations[3]}</Text>
           </View>
           <View className="bg-background border-b border-backgroundAnti">
             <FlatList

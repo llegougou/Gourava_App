@@ -11,7 +11,7 @@ import {
     ScrollView,
     Platform
 } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useLanguage} from './LanguageContext';
 
 interface Tag {
     name: string;
@@ -46,6 +46,8 @@ const TemplateFormModal = ({
     const [newCriteria, setCriteria] = useState(criteria.map(criterion => criterion.name));
     const [currentTemplateId, setCurrentTemplateId] = useState(templateId)
 
+    const { languageData } = useLanguage();
+
     useEffect(() => {
         setTitle(title);
         setTags(tags.map(tag => tag.name));
@@ -55,10 +57,10 @@ const TemplateFormModal = ({
     let modalTitle = '';
     switch (typeOfModal) {
         case 'createTemplate':
-            modalTitle = 'New Template';
+            modalTitle = languageData.screens.templateFormModal.text.newTemplate;
             break;
         case 'updateTemplate':
-            modalTitle = 'Update Template';
+            modalTitle = languageData.screens.templateFormModal.text.updateTemplate;
             break;
     }
 
@@ -74,7 +76,7 @@ const TemplateFormModal = ({
         const hasAtLeastOneTag = newTags.some(tag => tag.trim() !== "");
 
         if (!isTitleValid || !hasAtLeastOneTag) {
-            Alert.alert("Error", "Please provide a title and at least one tag.");
+            Alert.alert(languageData.common.error, languageData.screens.templateFormModal.errors.missingTitleAndTag);
             return false;
         }
 
@@ -104,18 +106,18 @@ const TemplateFormModal = ({
                     showsVerticalScrollIndicator={false}
                 >
                     <Text style={styles.modalTitle}>{modalTitle}</Text>
-                    <Text style={styles.catTitle}>Title</Text>
+                    <Text style={styles.catTitle}>{languageData.common.title.onecaps}</Text>
                     <TextInput
-                        placeholder="Title"
+                        placeholder={languageData.common.title.onecaps}
                         placeholderTextColor="#424242"
                         value={newTitle}
                         onChangeText={setTitle}
                         style={styles.input}
                     />
 
-                    <Text style={styles.catTitle}>Tags</Text>
+                    <Text style={styles.catTitle}>{languageData.common.tag.plural}</Text>
                     <TextInput
-                        placeholder="Tag 1"
+                        placeholder={languageData.common.placeholders.tag1}
                         placeholderTextColor="#424242"
                         value={newTags[0]}
                         onChangeText={(text) => {
@@ -127,7 +129,7 @@ const TemplateFormModal = ({
                     />
                     {newTags[0] && (
                         <TextInput
-                            placeholder="Tag 2"
+                            placeholder={languageData.common.placeholders.tag2}
                             placeholderTextColor="#424242"
                             value={newTags[1]}
                             onChangeText={(text) => {
@@ -140,7 +142,7 @@ const TemplateFormModal = ({
                     )}
                     {newTags[1] && (
                         <TextInput
-                            placeholder="Tag 3"
+                            placeholder={languageData.common.placeholders.tag3}
                             placeholderTextColor="#424242"
                             value={newTags[2]}
                             onChangeText={(text) => {
@@ -158,7 +160,7 @@ const TemplateFormModal = ({
 
                     <View style={styles.criteriaRow}>
                         <TextInput
-                            placeholder="Criteria 1"
+                            placeholder={languageData.common.placeholders.criteria1}
                             placeholderTextColor="#424242"
                             value={newCriteria[0]}
                             onChangeText={(text) => {
@@ -173,7 +175,7 @@ const TemplateFormModal = ({
                     {newCriteria[0] && (
                         <View style={styles.criteriaRow}>
                             <TextInput
-                                placeholder="Criteria 2"
+                                placeholder={languageData.common.placeholders.criteria2}
                                 placeholderTextColor="#424242"
                                 value={newCriteria[1]}
                                 onChangeText={(text) => {
@@ -189,7 +191,7 @@ const TemplateFormModal = ({
                     {newCriteria[1] && (
                         <View style={styles.criteriaRow}>
                             <TextInput
-                                placeholder="Criteria 3"
+                                placeholder={languageData.common.placeholders.criteria3}
                                 placeholderTextColor="#424242"
                                 value={newCriteria[2]}
                                 onChangeText={(text) => {
@@ -204,10 +206,10 @@ const TemplateFormModal = ({
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity onPress={handleCancel} style={[styles.button, styles.cancelButton]}>
-                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                            <Text style={styles.cancelButtonText}>{languageData.common.cancel.onecaps}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={handleSave} style={[styles.button, styles.saveButton]}>
-                            <Text style={styles.saveButtonText}>Save</Text>
+                            <Text style={styles.saveButtonText}>{languageData.common.save.onecaps}</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -278,12 +280,12 @@ const styles = StyleSheet.create({
     cancelButtonText: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#00796B',
+        color: '#424242',
     },
     saveButtonText: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#FF8B66',
+        color: '#DCC8AA',
     },
 });
 

@@ -4,8 +4,6 @@ import {
   Text,
   View,
   TouchableOpacity,
-  FlatList,
-  Modal,
   ScrollView,
   Dimensions,
   Animated,
@@ -15,7 +13,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { initializeApp, addItem, getTemplates } from "../../utils/database";
 import ItemFormModal from '../../components/ItemFormModal';
-import { useNavigation } from "@react-navigation/native";
+import { useLanguage } from '../../components/LanguageContext';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
 
 import { icons } from '../../constants';
 
@@ -27,7 +26,7 @@ export default function App() {
   const [ratings, setRatings] = useState(["", "", ""]);
   const [templates, setTemplates] = useState([]);
 
-  const navigation = useNavigation();
+  const { languageData } = useLanguage();
 
   const screenWidth = Dimensions.get('window').width;
   const screenHeight = Dimensions.get('window').height
@@ -72,8 +71,6 @@ export default function App() {
       const trimmedTitle = newTitle.trim();
 
       setCustomModalVisible(false);
-      setTemplateModalVisible(false);
-      setChoiceModalVisible(false);
       await addItem(trimmedTitle, filteredTags, filteredCriteria);
 
     } catch (error) {
@@ -104,17 +101,21 @@ export default function App() {
     }, 100);
   };
 
-  const accentTextStyle = 'text-secondary font-pextrabold text-xl leading-loose'
+  
+  const accentTextStyle = 'text-secondary font-pextrabold text-xl leading-relaxed'
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-14">
       <StatusBar backgroundColor='#DCC8AA' barStyle="dark-content" style="dark" />
       <ScrollView>
-        <Text className="text-4xl text-primaryLight font-pextrabold ml-4 pt-4">WELCOME TO</Text>
+        <View className="flex-row justify-between items-end">
+          <Text className="text-4xl text-primaryLight font-pextrabold ml-4 pt-4">{languageData.screens.home.text.welcomeMessage}</Text>
+          <LanguageSwitcher />
+        </View>
         <Text className="text-6xl text-primary font-pextrabold py-2 ml-6">GOURAVA!</Text>
         <View className="items-end">
-          <Text className="text-2xl  text-secondaryLight font-psemibold mr-6">SAVOR EVERY MOMENT,</Text>
-          <Text className="text-3xl text-secondary mb-4 font-psemibold mr-4">RATE EVERY TASTE!</Text>
+          <Text className="text-2xl  text-secondaryLight font-psemibold mr-6">{languageData.screens.home.text.sloganPart1}</Text>
+          <Text className="text-3xl text-secondary mb-4 font-psemibold mr-4">{languageData.screens.home.text.sloganPart2}</Text>
         </View>
 
 
@@ -180,7 +181,7 @@ export default function App() {
                     width: '100%',
                   }}
                 >
-                  GRADE A NEW ITEM
+                  {languageData.screens.home.text.addButtonText}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -190,10 +191,10 @@ export default function App() {
         {/* Descritpion text*/}
         <View className="mx-3 justify-center">
           <Text className='text-neutral font-psemibold text-xl '>
-            This app lets you <Text className={`${accentTextStyle}`}>grade anything you want! </Text>
-            Use <Text className={`${accentTextStyle}`}>TAGS</Text> to organize and label your items, and
-            <Text className={`${accentTextStyle}`}> CRITERIA</Text> to rate and evaluate them in a way that makes sense to you.
-            It’s <Text className={`${accentTextStyle}`}>YOUR WORLD</Text> — categorize it, rate it, and see what stands out!
+          {languageData.screens.home.text.descriptionPart1} <Text className={`${accentTextStyle}`}>{languageData.screens.home.text.descriptionAccent1} </Text>
+          {languageData.screens.home.text.descriptionPart2} <Text className={`${accentTextStyle}`}>{languageData.common.tag.variations[3]} </Text>{languageData.screens.home.text.descriptionPart3}
+            <Text className={`${accentTextStyle}`}> {languageData.common.criteria.variations[3]}</Text> {languageData.screens.home.text.descriptionPart4}
+            <Text className={`${accentTextStyle}`}> {languageData.screens.home.text.descriptionAccent4}</Text> {languageData.screens.home.text.descriptionPart5}
           </Text>
         </View>
 

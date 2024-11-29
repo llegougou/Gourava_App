@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { useLanguage } from '../../components/LanguageContext';
 
 import { icons } from '../../constants';
 import { createTemplate, getTemplates, getTemplateById, updateTemplate, deleteTemplate } from '../../utils/database';
@@ -20,6 +21,8 @@ const Templates = () => {
     const [updateTags, setUpdateTags] = useState(["", "", ""]);
     const [updateCriteria, setUpdateCriteria] = useState(["", "", ""]);
     const [updateTemplateId, setUpdateTemplateId] = useState("");
+
+    const { languageData } = useLanguage();
 
     const loadTemplates = async () => {
         try {
@@ -57,11 +60,11 @@ const Templates = () => {
 
     const handleDelete = (templateId) => {
         Alert.alert(
-            "Confirm Delete",
-            `Are you sure you want to delete ?`,
+            languageData.screens.templates.text.confirmDeleteTitle,
+            languageData.screens.templates.text.confirmDeleteMessage,
             [
-                { text: "Cancel", style: "cancel" },
-                { text: "OK", onPress: () => onDelete(templateId) }
+                { text: languageData.common.cancel.onecaps, style: "cancel" },
+                { text: languageData.common.ok.onecaps, onPress: () => onDelete(templateId) }
             ]
         );
     };
@@ -155,7 +158,7 @@ const Templates = () => {
                         <View className="flex-row justify-between items-start">
                             {/* Tags List */}
                             <View className="flex-1 mr-4">
-                                <Text className="text-neutral font-pextrabold mb-2">Tags:</Text>
+                                <Text className="text-neutral font-pextrabold mb-2">{languageData.common.tag.variations[4]}</Text>
                                 {item.tags.map((tag, index) => (
                                     <Text key={index} className="text-neutral font-pmedium mb-1 ml-2">
                                         {tag}
@@ -165,7 +168,7 @@ const Templates = () => {
 
                             {/* Criteria List */}
                             <View className="flex-1">
-                                <Text className="text-neutral font-pextrabold mb-2">Criterias:</Text>
+                                <Text className="text-neutral font-pextrabold mb-2">{languageData.common.criteria.variations[4]}</Text>
                                 {item.criteria.map((criterion, index) => (
                                     <Text key={index} className="text-neutral font-pmedium mb-1 ml-2">
                                         {criterion}
@@ -217,14 +220,14 @@ const Templates = () => {
                 className="bg-primary rounded-lg px-6 py-4 mx-4 my-8 elevation-md"
                 onPress={() => setModalCreationVisible(true)}
             >
-                <Text className="text-xl font-bold text-background text-center">CREATE NEW TEMPLATE</Text>
+                <Text className="text-xl font-bold text-background text-center">{languageData.screens.templates.text.createButton}</Text>
             </TouchableOpacity>
 
             <ScrollView>
                 <View>
                     <View className="bg-secondary elevation py-4">
                         <Text className="text-neutral text-center text-xl font-pextrabold">
-                            TEMPLATES
+                        {languageData.screens.templates.text.header}
                         </Text>
                     </View>
                     <View className="bg-background border-b border-backgroundAnti">

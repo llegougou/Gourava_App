@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, Alert, KeyboardAvoidingView, ScrollView, Platform, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-
+import { useLanguage} from './LanguageContext';
 import { icons } from "../constants";
 
 interface Tag {
@@ -40,6 +40,8 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
     const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
     const [selectedTemplateName, setSelectedTemplateName] = useState('')
 
+    const { languageData } = useLanguage();
+
     useEffect(() => {
         setTitle(title);
         setTags(tags.map(tag => tag.name));
@@ -50,28 +52,22 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
     let modalTitle = '';
     switch (typeOfModal) {
         case 'customCreate':
-            modalTitle = 'Add a new Item';
+            modalTitle = languageData.screens.itemFormModal.text.addNewItem;
             break;
         case 'update':
-            modalTitle = 'Update Item';
+            modalTitle = languageData.screens.itemFormModal.text.updateItem;
             break;
-        case 'fromTemplateCreate':
-            modalTitle = 'New Item from Template';
-            break;
-
     }
 
     const handleTemplateSelect = (templateTitle: string) => {
         const template = templates?.find(t => t.name === templateTitle);
         if (template) {
             setSelectedTemplate(template);
-            setTitle(template.name);
             setTags(template.tags);
             setCriteria(template.criteria);
             setSelectedTemplateName(template.name)
         }
     };
-
 
     const handleSave = () => {
         if (validateForm()) {
@@ -85,7 +81,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
         const hasAtLeastOneTag = newTags.some(tag => tag.trim() !== "");
 
         if (!isTitleValid || !hasAtLeastOneTag) {
-            Alert.alert("Error", "Please provide a title and at least one tag.");
+            Alert.alert(languageData.common.error, languageData.screens.itemFormModal.errors.missingTitleAndTag);
             return false;
         }
 
@@ -104,7 +100,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
         });
 
         if (!isRatingsValid) {
-            Alert.alert("Error", "Please enter valid ratings between 0 and 5 in increments of 0.5 for filled criteria.");
+            Alert.alert(languageData.common.error, languageData.screens.itemFormModal.errors.invalidRatings);
             return false;
         }
 
@@ -139,7 +135,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
 
                     {templateChoice && templates && templates.length > 0 && (
                         <>
-                            <Text style={styles.catTitle}>Use an optional template</Text>
+                            <Text style={styles.catTitle}>{languageData.screens.itemFormModal.text.useTemplate}</Text>
                             <View style={styles.pickerRow}>
                                 <View style={styles.pickerWrapper}>
                                     <Picker
@@ -147,7 +143,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
                                         onValueChange={(value) => handleTemplateSelect(value)}
                                         style={[styles.picker, { color: selectedTemplateName ? '#FF7043' : '#424242' }]} 
                                     >
-                                        <Picker.Item label="Select a Template" value="noTemplate" />
+                                        <Picker.Item label={languageData.screens.itemFormModal.text.selectTemplate} value="noTemplate" />
                                         {templates.map(template => (
                                             <Picker.Item key={template.name} label={template.name} value={template.name} />
                                         ))}
@@ -163,18 +159,18 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
                         </>
                     )}
 
-                    <Text style={styles.catTitle}>Title</Text>
+                    <Text style={styles.catTitle}>{languageData.common.title.onecaps}</Text>
                     <TextInput
-                        placeholder="Title"
+                        placeholder={languageData.common.title.onecaps}
                         placeholderTextColor="#424242"
                         value={newTitle}
                         onChangeText={setTitle}
                         style={styles.input}
                     />
 
-                    <Text style={styles.catTitle}>Tags</Text>
+                    <Text style={styles.catTitle}>{languageData.common.tag.plural}</Text>
                     <TextInput
-                        placeholder="Tag 1"
+                        placeholder={languageData.common.placeholders.tag1}
                         placeholderTextColor="#424242"
                         value={newTags[0]}
                         onChangeText={(text) => {
@@ -186,7 +182,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
                     />
                     {newTags[0] && (
                         <TextInput
-                            placeholder="Tag 2"
+                            placeholder={languageData.common.placeholders.tag2}
                             placeholderTextColor="#424242"
                             value={newTags[1]}
                             onChangeText={(text) => {
@@ -199,7 +195,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
                     )}
                     {newTags[1] && (
                         <TextInput
-                            placeholder="Tag 3"
+                            placeholder={languageData.common.placeholders.tag3}
                             placeholderTextColor="#424242"
                             value={newTags[2]}
                             onChangeText={(text) => {
@@ -212,13 +208,13 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
                     )}
 
                     <View style={styles.criteriaContainer}>
-                        <Text style={styles.catTitle}>Criterias</Text>
-                        <Text style={styles.catTitle}>Rating</Text>
+                        <Text style={styles.catTitle}>{languageData.common.criteria.plural}</Text>
+                        <Text style={styles.catTitle}>{languageData.screens.itemFormModal.text.rating}</Text>
                     </View>
 
                     <View style={styles.criteriaRow}>
                         <TextInput
-                            placeholder="Criteria 1"
+                            placeholder={languageData.common.placeholders.criteria1}
                             placeholderTextColor="#424242"
                             value={newCriteria[0]}
                             onChangeText={(text) => {
@@ -245,7 +241,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
                     {newCriteria[0] && (
                         <View style={styles.criteriaRow}>
                             <TextInput
-                                placeholder="Criteria 2"
+                                placeholder={languageData.common.placeholders.criteria2}
                                 placeholderTextColor="#424242"
                                 value={newCriteria[1]}
                                 onChangeText={(text) => {
@@ -273,7 +269,7 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
                     {newCriteria[1] && (
                         <View style={styles.criteriaRow}>
                             <TextInput
-                                placeholder="Criteria 3"
+                                placeholder={languageData.common.placeholders.criteria3}
                                 placeholderTextColor="#424242"
                                 value={newCriteria[2]}
                                 onChangeText={(text) => {
@@ -300,10 +296,10 @@ const ItemFormModal = ({ typeOfModal, title, tags, templates, templateChoice, cr
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity onPress={handleCancel} style={[styles.button, styles.cancelButton]}>
-                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                            <Text style={styles.cancelButtonText}>{languageData.common.cancel.onecaps}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={handleSave} style={[styles.button, styles.saveButton]}>
-                            <Text style={styles.saveButtonText}>Save</Text>
+                            <Text style={styles.saveButtonText}>{languageData.common.save.onecaps}</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -402,7 +398,7 @@ const styles = StyleSheet.create({
     button: {
         paddingVertical: 12,
         paddingHorizontal: 24,
-        borderRadius: 24,
+        borderRadius: 6,
         marginHorizontal: 8,
     },
     cancelButton: {

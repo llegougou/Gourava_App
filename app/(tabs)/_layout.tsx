@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Keyboard, SafeAreaView } from 'react-native';
+import { View, Text, Image, Keyboard, SafeAreaView, StatusBar } from 'react-native';
 import { Tabs } from 'expo-router';
 import { icons } from '../../constants';
 
@@ -47,6 +47,7 @@ const TabsLayout = () => {
     <SafeAreaView
       style={{ flex: 1 }}
     >
+      <StatusBar barStyle="dark-content" backgroundColor="#DCC8AA" />
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,

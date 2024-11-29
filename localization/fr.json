@@ -1,0 +1,112 @@
+{
+    "language": "French",
+    "common": {
+        "title": {
+            "caps": "TITRE",
+            "onecaps": "Titre",
+            "nocaps": "tile"
+        },
+        "tag": {
+            "singular": "Catégorie",
+            "plural": "Catégories",
+            "variations": ["catégorie", "catégories", "CATÉGORIE", "CATÉGORIES", "Catégories:"]
+        },
+        "criteria": {
+            "singular": "Critère",
+            "plural": "Critères",
+            "variations": ["critère", "critères", "CRITÈRE", "CRITÈRES", "Critères:"]
+        },
+        "ok": {
+            "caps": "OK",
+            "nocaps": "ok"
+        },
+        "cancel": {
+            "caps": "ANNULER",
+            "onecaps": "Annuler",
+            "nocaps": "annuler"
+        },
+        "save": {
+            "caps": "ENREGISTRER",
+            "onecaps": "Enregistrer",
+            "nocaps": "enregistrer"
+        },
+        "placeholders": {
+            "tag1": "Catégorie 1",
+            "tag2": "Catégorie 2",
+            "tag3": "Catégorie 3",
+            "criteria1": "Critère 1",
+            "criteria2": "Critère 2",
+            "criteria3": "Critère 3"
+        },
+        "error":"Erreur"
+    },
+    "screens": {
+        "home": {
+            "text": {
+                "welcomeMessage": "BIENVENUE SUR",
+                "sloganPart1": "SAVOUREZ CHAQUE INSTANT,",
+                "sloganPart2": "ÉVALUEZ CHAQUE GOÛT !",
+                "addButtonText": "NOTER UN NOUVEL ARTICLE",
+                "descriptionPart1": "Cette application vous permet de",
+                "descriptionAccent1": "noter tout ce que vous voulez !",
+                "descriptionPart2": "Utilisez des",
+                "descriptionPart3": "pour organiser et étiqueter vos articles, et des",
+                "descriptionPart4": "pour les évaluer de la manière qui vous convient. C'est",
+                "descriptionAccent4": "VOTRE MONDE",
+                "descriptionPart5": "— catégorisez-le, évaluez-le et voyez ce qui en ressort !"
+            }
+        },
+
+        "grades": {
+            "text": {
+                "filtersButton": "Filtres",
+                "orderByButton": "Trier par",
+                "searchPlaceholder": "Rechercher...",
+                "resetFiltersButton": "Réinitialiser filtres",
+                "ratingAsc": "Note (croissante)",
+                "ratingDesc": "Note (décroissante)",
+                "alphabetical": "Alphabétique",
+                "random": "Aléatoire"
+            }
+        },
+
+        "templates": {
+            "text": {
+                "createButton": "CRÉER UN NOUVEAU MODÈLE",
+                "header": "MODÈLES",
+                "confirmDeleteTitle": "Confirmer la suppression",
+                "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer ?"
+            }
+        },
+
+        "stats": {
+            "text": {
+                "usageDashboard": "STATISTIQUES D'UTILISATION"
+            }
+        },
+
+        "itemFormModal": {
+            "text": {
+                "addNewItem": "Ajouter un nouvel article",
+                "updateItem": "Mettre à jour l'article",
+                "useTemplate": "Utiliser un modèle",
+                "rating": "Notes",
+                "selectTemplate": "Sélectionner un modèle"
+            },
+            "errors": {
+                "missingTitleAndTag": "Veuillez fournir un titre et au moins une catégorie.",
+                "invalidRatings": "Veuillez entrer des notes entre 0 et 5 par incréments de 0.5, pour les critères remplis."
+            }
+        },
+
+        "templateFormModal": {
+            "text": {
+                "newTemplate": "Nouveau modèle",
+                "updateTemplate": "Mettre à jour le modèle"
+            },
+            "errors": {
+                "missingTitleAndTag": "Veuillez fournir un titre et au moins une catégorie."
+            }
+        }
+    }
+}
