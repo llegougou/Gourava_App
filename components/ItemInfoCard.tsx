@@ -200,20 +200,24 @@ const styles = StyleSheet.create({
   updateButton: {
     width: 35,
     height: 35,
-    borderRadius: 20,
+    borderRadius: 25,
     backgroundColor: '#00796B',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 4,
+    borderWidth: 1,
+    borderColor: '#424242'
   },
   deleteButton: {
     width: 35,
     height: 35,
-    borderRadius: 20,
+    borderRadius: 25,
     backgroundColor: '#FF7043',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 4,
+    borderWidth: 1,
+    borderColor: '#424242'
   },
   icon: {
     width: 20,
