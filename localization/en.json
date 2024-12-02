@@ -50,7 +50,13 @@
             "criteria2": "Criteria 2",
             "criteria3": "Criteria 3"
         },
-        "error":"Error"
+        "error":"Error",
+        "screenNames":{
+            "home":"Home",
+            "grades":"Grades",
+            "templates":"Templates",
+            "stats":"Stats"
+        }
     },
     "screens": {
         "home": {
@@ -85,7 +91,7 @@
                 "createButton": "CREATE NEW TEMPLATE",
                 "header": "TEMPLATES",
                 "confirmDeleteTitle": "Confirm Delete",
-                "confirmDeleteMessage": "Are you sure you want to delete?"
+                "confirmDeleteMessage": "Are you sure you want to delete"
             }
         },
         "stats": {

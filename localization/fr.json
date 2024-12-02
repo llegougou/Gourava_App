@@ -38,7 +38,13 @@
             "criteria2": "Critère 2",
             "criteria3": "Critère 3"
         },
-        "error":"Erreur"
+        "error":"Erreur",
+        "screenNames":{
+            "home":"Accueil",
+            "grades":"Notes",
+            "templates":"Modèles",
+            "stats":"Stats"
+        }
     },
     "screens": {
         "home": {
@@ -75,7 +81,7 @@
                 "createButton": "CRÉER UN NOUVEAU MODÈLE",
                 "header": "MODÈLES",
                 "confirmDeleteTitle": "Confirmer la suppression",
-                "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer ?"
+                "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer"
             }
         },
 
@@ -89,7 +95,7 @@
             "text": {
                 "addNewItem": "Ajouter un nouvel article",
                 "updateItem": "Mettre à jour l'article",
-                "useTemplate": "Utiliser un modèle",
+                "useTemplate": "Utiliser un modèle (optionnel)",
                 "rating": "Notes",
                 "selectTemplate": "Sélectionner un modèle"
             },

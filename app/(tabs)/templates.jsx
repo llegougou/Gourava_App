@@ -1,5 +1,14 @@
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import { 
+    SafeAreaView, 
+    Text, 
+    View, 
+    FlatList, 
+    ScrollView, 
+    TouchableOpacity, 
+    Image, 
+    Alert,
+    Animated } from 'react-native';
 import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLanguage } from '../../components/LanguageContext';
@@ -23,11 +32,18 @@ const Templates = () => {
     const [updateTemplateId, setUpdateTemplateId] = useState("");
 
     const { languageData } = useLanguage();
+    const [rotationAnims, setRotationAnims] = useState({});
 
     const loadTemplates = async () => {
         try {
             const fetchedTemplates = await getTemplates();
             setTemplates(fetchedTemplates);
+
+            const anims = {};
+            fetchedTemplates.forEach(template => {
+                anims[template.id] = new Animated.Value(0);
+            });
+            setRotationAnims(anims);
         } catch (error) {
             console.error("Error fetching templates:", error);
         }
@@ -38,9 +54,33 @@ const Templates = () => {
             loadTemplates();
         }, [])
     );
-    
+
     const toggleExpandTemplate = (id) => {
-        setExpandedTemplateId((prevId) => (prevId === id ? null : id));
+        const isExpanded = expandedTemplateId === id;
+    
+        if (isExpanded) {
+            Animated.timing(rotationAnims[id], {
+                toValue: 0, 
+                duration: 300,
+                useNativeDriver: true,
+            }).start();
+        } else {
+            if (expandedTemplateId !== null) {
+                Animated.timing(rotationAnims[expandedTemplateId], {
+                    toValue: 0,
+                    duration: 300,
+                    useNativeDriver: true,
+                }).start();
+            }
+    
+            Animated.timing(rotationAnims[id], {
+                toValue: 1, 
+                duration: 300,
+                useNativeDriver: true,
+            }).start();
+        }
+    
+        setExpandedTemplateId(isExpanded ? null : id);
     };
 
     const handleCreation = async (newTitle, newTags, newCriteria) => {
@@ -58,10 +98,11 @@ const Templates = () => {
         }
     };
 
-    const handleDelete = (templateId) => {
+    const handleDelete = (templateId, templateName) => {
+        const confirmDeleteMessage = `${languageData.screens.templates.text.confirmDeleteMessage} ${templateName} ?`;
         Alert.alert(
             languageData.screens.templates.text.confirmDeleteTitle,
-            languageData.screens.templates.text.confirmDeleteMessage,
+            confirmDeleteMessage,
             [
                 { text: languageData.common.cancel.onecaps, style: "cancel" },
                 { text: languageData.common.ok.onecaps, onPress: () => onDelete(templateId) }
@@ -95,6 +136,7 @@ const Templates = () => {
 
                 setModalUpdateVisible(true);
                 setUpdateTemplateId(templateId);
+                setExpandedTemplateId("")
             } else {
                 console.error("Template not found for update.");
             }
@@ -119,15 +161,20 @@ const Templates = () => {
     };
 
     const renderSeeMoreTemplateButton = (item) => {
+        const rotation = rotationAnims[item.id]?.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['0deg', '180deg'],
+        }) || '0deg';
+    
         return (
             <View className="flex-row justify-center">
                 <TouchableOpacity onPress={() => toggleExpandTemplate(item.id)}>
-                    <Image
+                    <Animated.Image
                         source={icons.navArrow}
                         style={{
                             width: 14,
                             height: 14,
-                            transform: [{ rotate: expandedTemplateId === item.id ? '180deg' : '0deg' }],
+                            transform: [{ rotate: rotation }],
                             tintColor: '#424242',
                         }}
                     />
@@ -136,7 +183,7 @@ const Templates = () => {
         );
     };
 
-    const renderItem = ({ item, index }) => {
+    const renderTemplate = ({ item, index }) => {
         const isExpanded = expandedTemplateId === item.id;
         const backgroundColor = index % 2 === 0 ? 'bg-backgroundAnti elevation' : 'bg-background';
 
@@ -152,7 +199,7 @@ const Templates = () => {
 
                     {renderSeeMoreTemplateButton(item)}
                 </TouchableOpacity>
-
+                
                 {isExpanded && (
                     <View className="px-4 mt-2 mx-6">
                         <View className="flex-row justify-between items-start">
@@ -194,7 +241,7 @@ const Templates = () => {
 
                                 <TouchableOpacity
                                     className="bg-secondary p-2 rounded-full border border-neutral"
-                                    onPress={() => handleDelete(item.id)}
+                                    onPress={() => handleDelete(item.id, item.name)}
                                 >
                                     <Image
                                         source={icons.deleteIcon}
@@ -233,7 +280,7 @@ const Templates = () => {
                     <View className="bg-background border-b border-backgroundAnti">
                         <FlatList
                             data={templates}
-                            renderItem={renderItem}
+                            renderItem={renderTemplate}
                             keyExtractor={(item) => `${item.id}`}
                             scrollEnabled={false}
                         />

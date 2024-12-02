@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, Alert, StyleSheet, LayoutChangeEvent, Animated } from 'react-native';
 
+import { useLanguage } from './LanguageContext';
 import { icons } from '@/constants';
 
 interface Tag {
@@ -23,30 +24,42 @@ interface ItemInfoCardProps {
 const ItemInfoCard = ({ title, tags, criteriaRatings, onDelete, onUpdate }: ItemInfoCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [rotationAnim] = useState(new Animated.Value(0));
+  const [buttonSlideAnim] = useState(new Animated.Value(50));
+
+  const { languageData } = useLanguage();
+
   const CRITERIA_MAX_LENGTH = 8;
 
   const toggleExpansion = () => {
     setIsExpanded((prev) => !prev);
 
-    Animated.timing(rotationAnim, {
-      toValue: isExpanded ? 0 : 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    Animated.parallel([
+      Animated.timing(buttonSlideAnim, {
+        toValue: isExpanded ? 50 : 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rotationAnim, {
+        toValue: isExpanded ? 0 : 1,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]).start();
   };
 
   const rotation = rotationAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
+    outputRange: ['90deg', '0deg']
   });
 
   const handleDelete = () => {
+    const confirmDeleteMessage = `${languageData.screens.templates.text.confirmDeleteMessage} ${title} ?`;
     Alert.alert(
-      "Confirm Delete",
-      `Are you sure you want to delete ${title}?`,
+      languageData.screens.templates.text.confirmDeleteTitle,
+      confirmDeleteMessage,
       [
-        { text: "Cancel", style: "cancel" },
-        { text: "OK", onPress: onDelete }
+        { text: languageData.common.cancel.onecaps, style: "cancel" },
+        { text: languageData.common.ok.onecaps, onPress: onDelete }
       ]
     );
   };
@@ -136,7 +149,12 @@ const ItemInfoCard = ({ title, tags, criteriaRatings, onDelete, onUpdate }: Item
       </View>
 
       <TouchableOpacity style={styles.bottomRow} onPress={toggleExpansion}>
-        <View style={styles.buttonContainer}>
+        <Animated.View style={[
+          styles.buttonContainer,
+          {
+            transform: [{ translateX: buttonSlideAnim }]
+          }
+        ]}>
           {isExpanded && (
             <>
               <TouchableOpacity onPress={onUpdate} style={styles.updateButton}>
@@ -147,7 +165,7 @@ const ItemInfoCard = ({ title, tags, criteriaRatings, onDelete, onUpdate }: Item
               </TouchableOpacity>
             </>
           )}
-        </View>
+        </Animated.View>
         <Animated.Image
           source={icons.navArrow}
           style={[styles.navArrow, { transform: [{ rotate: rotation }] }]} />
@@ -155,7 +173,6 @@ const ItemInfoCard = ({ title, tags, criteriaRatings, onDelete, onUpdate }: Item
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   card: {
@@ -195,7 +212,8 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     tintColor: '#424242',
-    margin: 8
+    margin: 8,
+    zIndex:1
   },
   updateButton: {
     width: 35,

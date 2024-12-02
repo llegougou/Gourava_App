@@ -9,7 +9,7 @@ import {
   Image,
   ScrollView
 } from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import ItemInfoCard from '../../components/ItemInfoCard';
 import { icons } from '../../constants';
 import { useFocusEffect } from '@react-navigation/native';

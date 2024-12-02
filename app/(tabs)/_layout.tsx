@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Keyboard, SafeAreaView, StatusBar } from 'react-native';
 import { Tabs } from 'expo-router';
 import { icons } from '../../constants';
+import { useLanguage } from '../../components/LanguageContext';
 
 interface TabIconProps {
   icon: any;
@@ -28,6 +29,7 @@ const TabIcon = ({ icon, color, name, focused }: TabIconProps) => {
 
 const TabsLayout = () => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const { languageData } = useLanguage();
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -71,7 +73,7 @@ const TabsLayout = () => {
               <TabIcon
                 icon={icons.home}
                 color={color}
-                name="Home"
+                name={languageData.common.screenNames.home}
                 focused={focused}
               />
             )
@@ -86,7 +88,7 @@ const TabsLayout = () => {
               <TabIcon
                 icon={icons.star}
                 color={color}
-                name="Grades"
+                name={languageData.common.screenNames.grades}
                 focused={focused}
               />
             )
@@ -101,7 +103,7 @@ const TabsLayout = () => {
               <TabIcon
                 icon={icons.template}
                 color={color}
-                name="Templates"
+                name={languageData.common.screenNames.templates}
                 focused={focused}
               />
             )
@@ -116,7 +118,7 @@ const TabsLayout = () => {
               <TabIcon
                 icon={icons.criterias}
                 color={color}
-                name="Stats"
+                name={languageData.common.screenNames.stats}
                 focused={focused}
               />
             )

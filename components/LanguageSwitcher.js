@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useLanguage } from './LanguageContext';
-import { icons } from "../constants"; // Assuming icons contains the paths to the flags
+import { icons } from "../constants"; 
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
