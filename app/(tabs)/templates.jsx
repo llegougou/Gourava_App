@@ -52,7 +52,7 @@ const Templates = () => {
     
                 const numTags = template.tags.length;
                 const numCriteria = template.criteria.length;
-                const height = Math.max(numCriteria, numTags) * 20 + 20;
+                const height = Math.max(numCriteria, numTags) * 20 + 40;
     
                 heights[template.id] = height;
             });
