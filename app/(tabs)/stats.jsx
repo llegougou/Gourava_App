@@ -1,21 +1,26 @@
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image, Modal, ToastAndroid } from 'react-native';
+import Checkbox from 'expo-checkbox';
 import React, { useState } from 'react';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import * as DocumentPicker from 'expo-document-picker';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLanguage } from '../../components/LanguageContext';
 import { icons } from '../../constants';
 
-import { getTagsUsageCount, getCriteriaUsageCount } from '../../utils/database';
+import { getTagsUsageCount, getCriteriaUsageCount, importData, exportAll, exportItems, exportTemplates } from '../../utils/database';
 
 const Stats = () => {
   const [tagCounts, setTagCounts] = useState([]);
   const [criteriasCounts, setCriteriasCounts] = useState([]);
-
   const [visibleTagsCount, setVisibleTagsCount] = useState(6);
   const [visibleCriteriasCount, setVisibleCriteriasCount] = useState(6);
-
   const [isExpandedTags, setIsExpandedTags] = useState(false);
   const [isExpandedCriterias, setIsExpandedCriterias] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [exportItemsChecked, setExportItemsChecked] = useState(false);
+  const [exportTemplatesChecked, setExportTemplatesChecked] = useState(false);
 
   const { languageData } = useLanguage();
 
@@ -31,17 +36,6 @@ const Stats = () => {
       loadCounts();
     }, [])
   );
-
-  const renderItem = ({ item, index }) => {
-    const backgroundColor = index % 2 === 0 ? 'bg-backgroundAnti' : 'bg-background'
-
-    return (
-      <View className={`flex-row justify-between px-4 pb-2 pt-3 ${backgroundColor}`}>
-        <Text className="text-neutral text-lg font-pbold">{item.name}</Text>
-        <Text className="text-neutral text-lg">{item.usage_count}</Text>
-      </View>
-    )
-  };
 
   const handleSeeMore = (section) => {
     if (section === 'tags') {
@@ -61,6 +55,96 @@ const Stats = () => {
       setIsExpandedCriterias(false);
       setVisibleCriteriasCount(6);
     }
+  };
+
+  const handleExportSave = async () => {
+    try {
+      if (!exportItemsChecked && !exportTemplatesChecked) {
+        ToastAndroid.show(languageData.screens.stats.text.exportEmpty, ToastAndroid.SHORT);
+        return;
+      }
+
+      let jsonData;
+      let fileNameParts = ['export'];
+
+      if (exportItemsChecked && exportTemplatesChecked) {
+        jsonData = await exportAll();
+        fileNameParts.push('items_templates');
+      } else if (exportItemsChecked) {
+        jsonData = await exportItems();
+        fileNameParts.push('items');
+      } else if (exportTemplatesChecked) {
+        jsonData = await exportTemplates();
+        fileNameParts.push('templates');
+      }
+
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}_` +
+        `${String(currentDate.getHours()).padStart(2, '0')}-${String(currentDate.getMinutes()).padStart(2, '0')}`;
+
+      if (jsonData) {
+        const fileUri = FileSystem.documentDirectory + fileNameParts.join('_') + `_${formattedDate}.json`;
+
+        await FileSystem.writeAsStringAsync(fileUri, jsonData);
+
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(fileUri);
+        }
+
+        ToastAndroid.show(languageData.screens.stats.text.exportSucces, ToastAndroid.SHORT);
+        setIsModalVisible(false);
+        setExportItemsChecked(false);
+        setExportTemplatesChecked(false);
+      }
+    } catch (error) {
+      ToastAndroid.show(languageData.screens.stats.text.exportError, ToastAndroid.SHORT);
+    }
+  };
+
+  const handleImportSave = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/json',
+      });
+
+      if (result.type === 'cancel') {
+        ToastAndroid.show("File selection cancelled.", ToastAndroid.SHORT);
+        return;
+      }
+
+      const fileUri = result.assets[0].uri;
+
+      if (!fileUri) {
+        ToastAndroid.show("Invalid file format or URI.", ToastAndroid.SHORT);
+        return;
+      }
+
+      try {
+        const fileContent = await FileSystem.readAsStringAsync(fileUri);
+
+        await importData(fileContent);
+
+        ToastAndroid.show("File imported successfully.", ToastAndroid.SHORT);
+
+        loadCounts();
+
+      } catch (error) {
+        ToastAndroid.show("Error reading or parsing the file.", ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      ToastAndroid.show("Error selecting the file.", ToastAndroid.SHORT);
+    }
+  };
+
+  const renderItem = ({ item, index }) => {
+    const backgroundColor = index % 2 === 0 ? 'bg-backgroundAnti' : 'bg-background';
+
+    return (
+      <View className={`flex-row justify-between px-4 pb-2 pt-3 ${backgroundColor}`}>
+        <Text className="text-neutral text-lg font-pbold">{item.name}</Text>
+        <Text className="text-neutral text-lg">{item.usage_count}</Text>
+      </View>
+    );
   };
 
   const renderSeeMoreButton = (section) => {
@@ -127,6 +211,90 @@ const Stats = () => {
             {criteriasCounts.length > 10 && renderSeeMoreButton('criterias')}
           </View>
         </View>
+
+        {/* Saving Buttons */}
+        <View style={{ width: '80%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }}>
+        <TouchableOpacity
+            className="p-3 border border-neutral rounded-lg flex-row self-center"
+            onPress={() => setIsModalVisible(true)}
+          >
+            <Image source={icons.download} style={{
+              width: 20,
+              height: 20,
+              tintColor: '#424242',
+              marginRight: 6
+            }} />
+            <Text className="font-pbold text-neutral">{languageData.screens.stats.text.exporting}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="p-3 border border-neutral rounded-lg flex-row self-center m-2"
+            onPress={handleImportSave}
+          >
+            <Image source={icons.upload} style={{
+              width: 20,
+              height: 20,
+              tintColor: '#424242',
+              marginRight: 6
+            }} />
+            <Text className="font-pbold text-neutral">{languageData.screens.stats.text.importing}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Export Modal */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="none"
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View className="flex-1 justify-center items-center bg-neutral">
+            <View className="bg-backgroundAnti p-5 rounded-lg" style={{ width: '80%' }}>
+              <Text className="text-xl font-pextrabold mb-4">{languageData.screens.stats.text.exportOptions}</Text>
+              <TouchableOpacity className="flex-row items-center mb-3" onPress={() => setExportItemsChecked(!exportItemsChecked)}>
+                <Checkbox
+                  value={exportItemsChecked}
+                  onValueChange={() => setExportItemsChecked(!exportItemsChecked)}
+                />
+                <Text className="text-lg font-pbold ml-2" numberOfLines={2}>{languageData.screens.stats.text.items}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity className="flex-row items-center mb-3" onPress={() => setExportTemplatesChecked(!exportTemplatesChecked)}>
+                <Checkbox
+                  value={exportTemplatesChecked}
+                  onValueChange={() => setExportTemplatesChecked(!exportTemplatesChecked)}
+                />
+                <Text className="text-lg font-pbold ml-2" numberOfLines={2}>{languageData.screens.stats.text.templates}</Text>
+              </TouchableOpacity>
+
+              <View className="flex-row justify-between mt-4">
+                {/* Cancel Button */}
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsModalVisible(false);
+                    setExportItemsChecked(false);
+                    setExportTemplatesChecked(false);
+                  }}
+                  className="bg-secondaryLight py-3 px-6 rounded-lg mx-2"
+                >
+                  <Text className="text-lg font-bold text-neutral">
+                    {languageData.common.cancel.onecaps}
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Save Button */}
+                <TouchableOpacity
+                  onPress={handleExportSave}
+                  className="bg-primary py-3 px-6 rounded-lg mx-2"
+                >
+                  <Text className="text-lg font-bold text-backgroundAnti">
+                    {languageData.common.save.onecaps}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );

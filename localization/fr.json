@@ -87,7 +87,16 @@
 
         "stats": {
             "text": {
-                "usageDashboard": "STATISTIQUES D'UTILISATION"
+                "usageDashboard": "STATISTIQUES D'UTILISATION",
+                "exporting":"Créer sauvegarde",
+                "importing":"Restaurer sauvegarde",
+                "items":"Articles",
+                "templates":"Modèles",
+                "exportOptions":"Que voulez-vous sauvegarder ?",
+                "exportSucces":"Export réussi",
+                "exportError":"Il y a une erreur",
+                "exportEmpty":"Sélectionner une catégorie",
+                "exportPermissionError":"Besoin de l'accès aux fichiers pour sauvegarder"
             }
         },
 

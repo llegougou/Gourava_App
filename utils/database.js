@@ -97,7 +97,6 @@ const createDefaultTemplates = async () => {
   }
 };
 
-
 export const addItem = async (title, tags, criteriaRatings) => {
   try {
     if (!db) {
@@ -255,6 +254,161 @@ export const getCriteriaUsageCount = async (limit) => {
     return criteriaUsageCount;
   } catch (error) {
     console.error("Error getting criteria usage count:", error);
+  }
+};
+
+export const exportItems = async () => {
+  try {
+    if (!db) {
+      await initializeDatabase();
+    }
+
+    const items = await db.getAllAsync(`SELECT * FROM items`);
+
+    const exportedItems = [];
+
+    for (const item of items) {
+      const tags = await db.getAllAsync(`SELECT name FROM tags WHERE item_id = ?`, [item.id]);
+
+      const criteria = await db.getAllAsync(`SELECT name, rating FROM criteria WHERE item_id = ?`, [item.id]);
+
+      exportedItems.push({
+        id: item.id.toString(),
+        title: item.title,
+        tags: tags.map(tag => tag.name),  
+        criteria: criteria.map(c => ({ name: c.name, rating: c.rating }))
+      });
+    }
+
+    return JSON.stringify({ items: exportedItems }, null, 2);
+  } catch (error) {
+    console.error("Error exporting items:", error);
+    throw error; 
+  }
+};
+
+export const exportTemplates = async () => {
+  try {
+    if (!db) {
+      await initializeDatabase();
+    }
+
+    const templates = await db.getAllAsync(`SELECT * FROM templates`);
+
+    const exportedTemplates = [];
+    for (const template of templates) {
+      const tags = await db.getAllAsync(`SELECT name FROM template_tags WHERE template_id = ?`, [template.id]);
+      const criteria = await db.getAllAsync(`SELECT name FROM template_criteria WHERE template_id = ?`, [template.id]);
+
+      exportedTemplates.push({
+        id: template.id.toString(),
+        name: template.name,
+        tags: tags.map(tag => tag.name),
+        criteria: criteria.map(c => c.name)
+      });
+    }
+    
+    return JSON.stringify({ templates: exportedTemplates }, null, 2);
+  } catch (error) {
+    console.error("Error exporting templates:", error);
+    throw error;
+  }
+};
+
+export const exportAll = async () => {
+  try {
+    const itemsData = await exportItems();
+    const templatesData = await exportTemplates();
+
+    return JSON.stringify(
+      {
+        items: JSON.parse(itemsData).items,
+        templates: JSON.parse(templatesData).templates
+      },
+      null,
+      2
+    );
+  } catch (error) {
+    console.error("Error exporting all data:", error);
+    throw error;
+  }
+};
+
+export const importData = async (importedData) => {
+  try {
+    if (!db) {
+      await initializeDatabase();
+    }
+
+    const data = JSON.parse(importedData);
+
+    if (data.items) {
+      for (const itemData of data.items) {
+        const result = await db.runAsync(
+          `INSERT INTO items (title) VALUES (?)`,
+          [itemData.title]
+        );
+    
+        const itemId = result.lastInsertRowId;
+    
+        if (itemData.tags) {
+          for (let tagName of itemData.tags) {
+            await db.runAsync(
+              `INSERT INTO tags (item_id, name) VALUES (?, ?)`,
+              [itemId, tagName]
+            );
+          }
+        }
+    
+        if (itemData.criteria && Array.isArray(itemData.criteria)) {
+          for (let criterion of itemData.criteria) {
+            if (criterion.name && criterion.rating !== undefined) {
+              await db.runAsync(
+                `INSERT INTO criteria (item_id, name, rating) VALUES (?, ?, ?)`,
+                [itemId, criterion.name, criterion.rating]
+              );
+            } else {
+              console.warn("Invalid criterion data: ", criterion);
+            }
+          }
+        } else {
+          console.warn("No criteria found for item:", itemData);
+        }
+      }
+    }
+
+    if (data.templates) {
+      for (const templateData of data.templates) {
+        const result = await db.runAsync(
+          `INSERT INTO templates (name) VALUES (?)`,
+          [templateData.name]
+        );
+
+        const templateId = result.lastInsertRowId;
+
+        if (templateData.tags) {
+          for (let tag of templateData.tags) {
+            await db.runAsync(
+              `INSERT INTO template_tags (template_id, name) VALUES (?, ?)`,
+              [templateId, tag]
+            );
+          }
+        }
+
+        if (templateData.criteria) {
+          for (let criterion of templateData.criteria) {
+            await db.runAsync(
+              `INSERT INTO template_criteria (template_id, name) VALUES (?, ?)`,
+              [templateId, criterion]
+            );
+          }
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error("Error importing data:", error);
+    throw error;
   }
 };
 

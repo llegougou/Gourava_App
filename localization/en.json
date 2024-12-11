@@ -96,9 +96,19 @@
         },
         "stats": {
             "text": {
-                "usageDashboard": "USAGE DASHBOARD"
+                "usageDashboard": "USAGE DASHBOARD",
+                "exporting":"Create a save",
+                "importing":"Import a save",
+                "items":"Items",
+                "templates":"Templates",
+                "exportOptions":"What do you want to save ?",
+                "exportSucces":"Export successful",
+                "exportError":"There was an error",
+                "exportEmpty":"You need to save something",
+                "exportPermissionError":"The app need authorization to acces your files"
             }
         },
+
         "itemFormModal": {
             "text": {
                 "addNewItem": "Add a new Item",
@@ -106,14 +116,6 @@
                 "useTemplate": "Use an optional template",
                 "rating": "Ratings",
                 "selectTemplate": "Select a Template"
-            },
-            "placeholders": {
-                "tag1": "Tag 1",
-                "tag2": "Tag 2",
-                "tag3": "Tag 3",
-                "criteria1": "Criteria 1",
-                "criteria2": "Criteria 2",
-                "criteria3": "Criteria 3"
             },
             "errors": {
                 "missingTitleAndTag": "Please provide a title and at least one tag.",
