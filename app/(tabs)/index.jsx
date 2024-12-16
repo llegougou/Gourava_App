@@ -174,7 +174,7 @@ export default function App() {
                 />
 
                 <Text
-                  className="text-xl font-bold text-background text-center mt-2"
+                  className="text-xl font-bold text-background text-center pt-2"
                   style={{
                     position: 'absolute',
                     bottom: 20,

@@ -213,8 +213,8 @@ const Stats = () => {
         </View>
 
         {/* Saving Buttons */}
-        <View style={{ width: '80%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }}>
-        <TouchableOpacity
+        <View style={{ width: '80%', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }}>
+          <TouchableOpacity
             className="p-3 border border-neutral rounded-lg flex-row self-center"
             onPress={() => setIsModalVisible(true)}
           >
