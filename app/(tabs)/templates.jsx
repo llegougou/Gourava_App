@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     Image,
     Alert,
-    Animated
+    LayoutAnimation
 } from 'react-native';
 import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
@@ -33,38 +33,15 @@ const Templates = () => {
     const [updateTemplateId, setUpdateTemplateId] = useState("");
 
     const { languageData } = useLanguage();
-    const [rotationAnims, setRotationAnims] = useState({});
-    const [slideAnims, setSlideAnims] = useState({});
-    const [heights, setHeights] = useState ({});
 
     const loadTemplates = async () => {
-        try {
-            const fetchedTemplates = await getTemplates();
-            setTemplates(fetchedTemplates);
-    
-            const anims = {};
-            const slides = {};
-            const heights = {};
-            
-            fetchedTemplates.forEach(template => {
-                anims[template.id] = rotationAnims[template.id] || new Animated.Value(0);
-                slides[template.id] = slideAnims[template.id] || new Animated.Value(0);
-    
-                const numTags = template.tags.length;
-                const numCriteria = template.criteria.length;
-                const height = Math.max(numCriteria, numTags) * 20 + 40;
-    
-                heights[template.id] = height;
-            });
-    
-            setRotationAnims(anims);
-            setSlideAnims(slides);
-            setHeights(heights);
-        } catch (error) {
-            console.error("Error fetching templates:", error);
-        }
-    };
-
+    try {
+        const fetchedTemplates = await getTemplates();
+        setTemplates(fetchedTemplates);
+    } catch (error) {
+        console.error("Error fetching templates:", error);
+    }
+};
     useFocusEffect(
         React.useCallback(() => {
             loadTemplates();
@@ -74,49 +51,11 @@ const Templates = () => {
     const toggleExpandTemplate = (id) => {
         const isExpanded = expandedTemplateId === id;
     
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    
         if (isExpanded) {
-            Animated.timing(rotationAnims[id], {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
-    
-            Animated.timing(slideAnims[id], {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: false,
-            }).start(() => {
-                setExpandedTemplateId(null);
-            });
+            setExpandedTemplateId(null);
         } else {
-            if (expandedTemplateId !== null) {
-                Animated.timing(rotationAnims[expandedTemplateId], {
-                    toValue: 0,
-                    duration: 300,
-                    useNativeDriver: true,
-                }).start();
-    
-                Animated.timing(slideAnims[expandedTemplateId], {
-                    toValue: 0,
-                    duration: 300,
-                    useNativeDriver: false,
-                }).start(() => {
-                    slideAnims[expandedTemplateId].setValue(0);
-                });
-            }
-    
-            Animated.timing(rotationAnims[id], {
-                toValue: 1,
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
-    
-            Animated.timing(slideAnims[id], {
-                toValue: 1,
-                duration: 300,
-                useNativeDriver: false,
-            }).start();
-    
             setExpandedTemplateId(id);
         }
     };
@@ -202,18 +141,6 @@ const Templates = () => {
         const isExpanded = expandedTemplateId === item.id;
         const backgroundColor = index % 2 === 0 ? 'bg-backgroundAnti elevation' : 'bg-background';
     
-        const rotation = rotationAnims[item.id]?.interpolate({
-            inputRange: [0, 1],
-            outputRange: ['0deg', '180deg'],
-        }) || '0deg';
-
-        const opacity = slideAnims[item.id]?.interpolate({
-            inputRange: [0, 0.5, 1],
-            outputRange: [0, 0, 1],
-        }) || 0;
-
-        const maxHeight = heights[item.id] || 0;
-
         return (
             <View className={`p-4 ${backgroundColor}`}>
                 {/* Header with Touchable to toggle */}
@@ -224,91 +151,78 @@ const Templates = () => {
                     <View className="flex-row justify-between items-center flex-1">
                         <Text className="text-neutral text-2xl font-pbold">{item.name}</Text>
                     </View>
-                    <Animated.Image
+                    <Image
                         source={icons.navArrow}
                         style={{
                             width: 14,
                             height: 14,
-                            transform: [{ rotate: rotation }],
+                            transform: [{ rotate: isExpanded ? '180deg' : '0deg' }],
                             tintColor: '#424242',
                         }}
                     />
                 </TouchableOpacity>
     
-                {/* Sliding Animated View */}
-                <Animated.View
-                    style={{
-                        height: slideAnims[item.id]?.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0,maxHeight], 
-                        }),
-                        opacity, 
-                        overflow: 'hidden', 
-                    }}
-                >
-                    {isExpanded && (
-                        <View className="px-4 mt-2 mx-6">
-                            <View className="flex-row justify-between items-start">
-                                {/* Tags List */}
-                                <View className="flex-1 mr-4">
-                                    <Text className="text-neutral font-pextrabold mb-2">
-                                        {languageData.common.tag.variations[4]}
+                {/* Sliding View */}
+                {isExpanded && (
+                    <View className="px-4 mt-2 mx-6">
+                        <View className="flex-row justify-between items-start">
+                            {/* Tags List */}
+                            <View className="flex-1 mr-4">
+                                <Text className="text-neutral font-pextrabold mb-2">
+                                    {languageData.common.tag.variations[4]}
+                                </Text>
+                                {item.tags.map((tag, index) => (
+                                    <Text key={index} className="text-neutral font-pmedium mb-1 ml-2">
+                                        {tag}
                                     </Text>
-                                    {item.tags.map((tag, index) => (
-                                        <Text key={index} className="text-neutral font-pmedium mb-1 ml-2">
-                                            {tag}
-                                        </Text>
-                                    ))}
-                                </View>
+                                ))}
+                            </View>
     
-                                {/* Criteria List */}
-                                <View className="flex-1">
-                                    <Text className="text-neutral font-pextrabold mb-2">
-                                        {languageData.common.criteria.variations[4]}
+                            {/* Criteria List */}
+                            <View className="flex-1">
+                                <Text className="text-neutral font-pextrabold mb-2">
+                                    {languageData.common.criteria.variations[4]}
+                                </Text>
+                                {item.criteria.map((criterion, index) => (
+                                    <Text key={index} className="text-neutral font-pmedium mb-1 ml-2">
+                                        {criterion}
                                     </Text>
-                                    {item.criteria.map((criterion, index) => (
-                                        <Text key={index} className="text-neutral font-pmedium mb-1 ml-2">
-                                            {criterion}
-                                        </Text>
-                                    ))}
-                                </View>
-
-                                {/* Action Buttons */}
-                                <View className="flex-row flex-1 justify-center items-center h-full space-x-2 ml-6">
-                                    <TouchableOpacity
-                                        className="bg-primaryLight p-2 rounded-full border border-neutral mr-4"
-                                        onPress={() =>
-                                            handleUpdate(item.id)
-                                        }
-                                    >
-                                        <Image
-                                            source={icons.update}
-                                            style={{
-                                                width: 20,
-                                                height: 20,
-                                                tintColor: '#424242',
-                                            }}
-                                        />
-                                    </TouchableOpacity>
+                                ))}
+                            </View>
     
-                                    <TouchableOpacity
-                                        className="bg-secondary p-2 rounded-full border border-neutral"
-                                        onPress={() => handleDelete(item.id, item.name)}
-                                    >
-                                        <Image
-                                            source={icons.deleteIcon}
-                                            style={{
-                                                width: 20,
-                                                height: 20,
-                                                tintColor: '#424242',
-                                            }}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
+                            {/* Action Buttons */}
+                            <View className="flex-row flex-1 justify-center items-center h-full space-x-2 ml-6">
+                                <TouchableOpacity
+                                    className="bg-primaryLight p-2 rounded-full border border-neutral mr-4"
+                                    onPress={() => handleUpdate(item.id)}
+                                >
+                                    <Image
+                                        source={icons.update}
+                                        style={{
+                                            width: 20,
+                                            height: 20,
+                                            tintColor: '#424242',
+                                        }}
+                                    />
+                                </TouchableOpacity>
+    
+                                <TouchableOpacity
+                                    className="bg-secondary p-2 rounded-full border border-neutral"
+                                    onPress={() => handleDelete(item.id, item.name)}
+                                >
+                                    <Image
+                                        source={icons.deleteIcon}
+                                        style={{
+                                            width: 20,
+                                            height: 20,
+                                            tintColor: '#424242',
+                                        }}
+                                    />
+                                </TouchableOpacity>
                             </View>
                         </View>
-                    )}
-                </Animated.View>
+                    </View>
+                )}
             </View>
         );
     };

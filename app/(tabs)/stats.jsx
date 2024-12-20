@@ -1,5 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, Text, View, FlatList, ScrollView, TouchableOpacity, Image, Modal, ToastAndroid } from 'react-native';
+import {
+  SafeAreaView,
+  Text,
+  View,
+  FlatList,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Modal,
+  ToastAndroid,
+  LayoutAnimation
+} from 'react-native';
 import Checkbox from 'expo-checkbox';
 import React, { useState } from 'react';
 import * as FileSystem from 'expo-file-system';
@@ -12,10 +23,11 @@ import { icons } from '../../constants';
 import { getTagsUsageCount, getCriteriaUsageCount, importData, exportAll, exportItems, exportTemplates } from '../../utils/database';
 
 const Stats = () => {
+  const MAX_VISIBLE = 6;
   const [tagCounts, setTagCounts] = useState([]);
   const [criteriasCounts, setCriteriasCounts] = useState([]);
-  const [visibleTagsCount, setVisibleTagsCount] = useState(6);
-  const [visibleCriteriasCount, setVisibleCriteriasCount] = useState(6);
+  const [visibleTagsCount, setVisibleTagsCount] = useState(MAX_VISIBLE);
+  const [visibleCriteriasCount, setVisibleCriteriasCount] = useState(MAX_VISIBLE);
   const [isExpandedTags, setIsExpandedTags] = useState(false);
   const [isExpandedCriterias, setIsExpandedCriterias] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -38,6 +50,7 @@ const Stats = () => {
   );
 
   const handleSeeMore = (section) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (section === 'tags') {
       setIsExpandedTags(true);
       setVisibleTagsCount(tagCounts.length);
@@ -46,14 +59,15 @@ const Stats = () => {
       setVisibleCriteriasCount(criteriasCounts.length);
     }
   };
-
+  
   const handleSeeLess = (section) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (section === 'tags') {
       setIsExpandedTags(false);
-      setVisibleTagsCount(6);
+      setVisibleTagsCount(MAX_VISIBLE);
     } else if (section === 'criterias') {
       setIsExpandedCriterias(false);
-      setVisibleCriteriasCount(6);
+      setVisibleCriteriasCount(MAX_VISIBLE);
     }
   };
 
@@ -154,24 +168,23 @@ const Stats = () => {
           false;
 
     return (
-      <View className="flex-row justify-center bg-background border-t border-backgroundAnti">
-        <TouchableOpacity
-          onPress={() => isExpanded ? handleSeeLess(section) : handleSeeMore(section)}
-          className="py-2"
-        >
-          <Image
-            source={icons.navArrow}
-            style={{
-              width: 20,
-              height: 20,
-              transform: [{ rotate: isExpanded ? '180deg' : '0deg' }],
-              tintColor: '#424242'
-            }}
-          />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        onPress={() => isExpanded ? handleSeeLess(section) : handleSeeMore(section)}
+        className="flex-row justify-center bg-background border-t border-backgroundAnti py-2"
+      >
+        <Image
+          source={icons.navArrow}
+          style={{
+            width: 20,
+            height: 20,
+            transform: [{ rotate: isExpanded ? '180deg' : '0deg' }],
+            tintColor: '#424242'
+          }}
+        />
+      </TouchableOpacity>
     );
   };
+  
 
   return (
     <SafeAreaView className="flex-1 bg-background pt-14">
@@ -192,7 +205,7 @@ const Stats = () => {
               keyExtractor={(item, index) => `${item.name}-${index}`}
               scrollEnabled={false}
             />
-            {tagCounts.length > 10 && renderSeeMoreButton('tags')}
+            {tagCounts.length > MAX_VISIBLE && renderSeeMoreButton('tags')}
           </View>
         </View>
 
@@ -208,7 +221,7 @@ const Stats = () => {
               keyExtractor={(item, index) => `${item.name}-${index}`}
               scrollEnabled={false}
             />
-            {criteriasCounts.length > 10 && renderSeeMoreButton('criterias')}
+            {criteriasCounts.length > MAX_VISIBLE && renderSeeMoreButton('criterias')}
           </View>
         </View>
 
